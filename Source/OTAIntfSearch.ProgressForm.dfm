@@ -1,0 +1,56 @@
+object frmProgress: TfrmProgress
+  Left = 0
+  Top = 0
+  BorderStyle = bsNone
+  ClientHeight = 71
+  ClientWidth = 392
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poMainFormCenter
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pnlProgress: TPanel
+    Left = 0
+    Top = 0
+    Width = 392
+    Height = 71
+    Align = alClient
+    BevelInner = bvLowered
+    TabOrder = 0
+    object lblFiles: TLabel
+      AlignWithMargins = True
+      Left = 7
+      Top = 7
+      Width = 378
+      Height = 30
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alClient
+      Caption = 'lblFiles'
+      Layout = tlCenter
+      ExplicitWidth = 31
+      ExplicitHeight = 13
+    end
+    object pbrProgressBar: TProgressBar
+      AlignWithMargins = True
+      Left = 7
+      Top = 47
+      Width = 378
+      Height = 17
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alBottom
+      Smooth = True
+      TabOrder = 0
+    end
+  end
+end
