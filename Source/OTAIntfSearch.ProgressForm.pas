@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    10 Dec 2016
+  @Date    16 Dec 2016
 
 **)
 Unit OTAIntfSearch.ProgressForm;
@@ -81,7 +81,8 @@ End;
 Procedure TfrmProgress.ShowProgress(iTotal: Integer);
 
 Begin
-  Show;
+  If Not Visible Then
+    Show;
   pbrProgressBar.Style := pbstMarquee;
 End;
 

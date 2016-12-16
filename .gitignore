@@ -1,0 +1,13 @@
+*.~*~
+*.dcu
+*.dsk
+*.groupproj
+*.local
+*.identcache
+*.ithelper
+*.exe
+*.ini
+*.tvsconfig
+*.stat
+OTAIntfSearchITHVerInfo.res
+*.~dsk
