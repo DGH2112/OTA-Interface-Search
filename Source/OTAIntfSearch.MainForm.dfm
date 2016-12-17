@@ -36,10 +36,6 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabInterfaces: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Interfaces'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object splViews: TSplitter
         Left = 0
         Top = 298
@@ -66,18 +62,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         object tabCodeView: TTabSheet
           AlignWithMargins = True
           Caption = '&Code'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tabCreationPaths: TTabSheet
           AlignWithMargins = True
           Caption = 'Creation &Paths'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object splPaths: TSplitter
             Left = 0
             Top = 114
@@ -105,23 +93,28 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
               AlignWithMargins = True
               Left = 5
               Top = 5
-              Width = 4
-              Height = 16
+              Width = 734
+              Height = 20
               Align = alClient
               Alignment = taCenter
               Layout = tlCenter
               WordWrap = True
+              ExplicitWidth = 4
+              ExplicitHeight = 16
             end
           end
         end
       end
       object grdPanel: TGridPanel
         AlignWithMargins = True
-        Left = 3
+        Left = 0
         Top = 3
-        Width = 758
-        Height = 30
+        Width = 764
+        Height = 50
+        Margins.Left = 0
+        Margins.Right = 0
         Align = alTop
+        BevelOuter = bvNone
         ColumnCollection = <
           item
             Value = 50.000000000000000000
@@ -133,23 +126,38 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
           item
             Column = 0
             Control = edtFilter
-            Row = 0
+            Row = 1
           end
           item
             Column = 1
             Control = edtTargetSearch
+            Row = 1
+          end
+          item
+            Column = 0
+            Control = lblInterfaceMethodFilter
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = lblTargetSearchFilter
             Row = 0
           end>
         RowCollection = <
           item
+            SizeStyle = ssAbsolute
+            Value = 22.000000000000000000
+          end
+          item
+            SizeStyle = ssAuto
             Value = 100.000000000000000000
           end>
         TabOrder = 0
         object edtFilter: TEdit
           AlignWithMargins = True
-          Left = 4
-          Top = 4
-          Width = 372
+          Left = 3
+          Top = 25
+          Width = 376
           Height = 24
           Hint = 
             'Type a regular expression here to filter the list of interfaces,' +
@@ -160,12 +168,15 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
           ShowHint = True
           TabOrder = 0
           OnChange = edtFilterChange
+          ExplicitLeft = 4
+          ExplicitTop = 4
+          ExplicitWidth = 372
         end
         object edtTargetSearch: TEdit
           AlignWithMargins = True
-          Left = 382
-          Top = 4
-          Width = 372
+          Left = 385
+          Top = 25
+          Width = 376
           Height = 24
           Hint = 
             'Type a regular expression here to limit the creation paths to se' +
@@ -175,16 +186,42 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
           ShowHint = True
           TabOrder = 1
           OnChange = edtTargetSearchChange
+          ExplicitLeft = 382
+          ExplicitTop = 4
+          ExplicitWidth = 372
+        end
+        object lblInterfaceMethodFilter: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 376
+          Height = 16
+          Align = alClient
+          AutoSize = False
+          Caption = '&Interface and Method Filter:'
+          FocusControl = edtFilter
+          ExplicitTop = 17
+          ExplicitHeight = 22
+        end
+        object lblTargetSearchFilter: TLabel
+          Left = 382
+          Top = 0
+          Width = 382
+          Height = 22
+          Align = alClient
+          AutoSize = False
+          Caption = '&Target Search Filter:'
+          FocusControl = edtTargetSearch
+          ExplicitLeft = 554
+          ExplicitTop = 6
+          ExplicitWidth = 120
+          ExplicitHeight = 16
         end
       end
     end
     object tabToolsAPIFiles: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Files'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlButtons: TPanel
         AlignWithMargins = True
         Left = 3
@@ -320,7 +357,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Left = 40
     Top = 88
     Bitmap = {
-      494C0101060008006C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010106000800740010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

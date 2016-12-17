@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    25 Nov 2016
+  @Date    17 Dec 2016
 
 **)
 Unit OTAIntfSearch.Types;
@@ -32,12 +32,20 @@ Type
     sppRegExMsg    = 3
   );
 
+  (** An enumerate to define whether the target search has found a matching result in a node or
+      the nodes path. **)
+  TTargetSearchResult = (
+    tsrNotFound,
+    tsrFound
+  );
+
   (** This record describes the daat held in the interfces virtual treeview nodes. **)
   TTreeData = Record
     FLeafType              : TLeafType;
     FFileIndex             : Integer;
     FInterfaceObjectIndex  : Integer;
     FMethodIndex           : Integer;
+    FTargetSearch          : TTargetSearchResult;
   End;
 
   (** A pointer to the TTreeData record so it can be passed as parameter. **)

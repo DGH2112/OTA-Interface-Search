@@ -1,12 +1,12 @@
 (**
 
-  this module contains the main form interface for the application which is design to allow a user
+  This module contains the main form interface for the application which is design to allow a user
   tp search for Open Tools API (OTA) classes and interfaces / methods and properties across multiple
   search directories.
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    16 Dec 2016
+  @Date    17 Dec 2016
 
 **)
 Unit OTAIntfSearch.MainForm;
@@ -64,6 +64,8 @@ Type
     splPaths: TSplitter;
     grdPanel: TGridPanel;
     edtTargetSearch: TEdit;
+    lblInterfaceMethodFilter: TLabel;
+    lblTargetSearchFilter: TLabel;
     Procedure FormCreate(Sender: TObject);
     Procedure FormDestroy(Sender: TObject);
     Procedure FormShow(Sender: TObject);
@@ -132,6 +134,7 @@ Type
     Procedure UpdateFormTitle;
     Procedure ParseFilesAndFilter;
     Function  FilterInterfaceTreeView(N : PVirtualNode) : Integer;
+    Procedure ValidRegEx(RegExControl : TEdit);
   Public
   End;
 
@@ -149,6 +152,7 @@ Uses
   SysUtils,
   RegularExpressionsCore,
   Types,
+  UITypes,
   OTAIntfSearch.MemIniFile,
   OTAIntfSearch.ToolsAPIFiles,
   OTAIntfSearch.BrowseFolderForm,
@@ -360,6 +364,7 @@ Procedure TfrmOTAIntfSearch.edtFilterChange(Sender: TObject);
 
 Begin
   FSearchLastEdited := GetTickCount;
+  ValidRegEx(edtFilter);
 End;
 
 (**
@@ -377,6 +382,7 @@ Procedure TfrmOTAIntfSearch.edtTargetSearchChange(Sender: TObject);
 
 Begin
   FTargetLastEdited := GetTickCount;
+  ValidRegEx(edtTargetSearch);
 End;
 
 (**
@@ -420,8 +426,11 @@ Begin
     FUIUpdater.UpdateStatusPanel('RegEx Okay', sppRegExMsg);
   Except
     On E: ERegularExpressionError Do
-      FUIUpdater.UpdateStatusPanel(Format('RegEx Error in "%s": %s', [edtFilter.Text, E.Message]),
-        sppRegExMsg);
+      Begin
+        FFiltering := False;
+        FUIUpdater.UpdateStatusPanel(Format('RegEx Error in "%s": %s', [edtFilter.Text, E.Message]),
+          sppRegExMsg);
+      End;
   End;
   If FFiltering Then
     FUIUpdater.UpdateStatusPanel(Format('%d Matches', [iVisibleTotal]), sppMatches)
@@ -565,6 +574,9 @@ End;
 **)
 Procedure TfrmOTAIntfSearch.GenerateOTACode(NodeData: PTreeData);
 
+Const
+  strMsg = 'Exception in regular expression "%s":'#13#10'%s';
+
 Var
   GenerateOTACode: IOISGenerateOTACode;
   C: Char;
@@ -574,8 +586,13 @@ Begin
     Begin
       GenerateOTACode := TOISGenerateOTACode.Create(FToolsAPIFiles, NodeData.FFileIndex,
         FOTACodeTree, FProgressManager);
-      GenerateOTACode.GenerateCode(NodeData.FInterfaceObjectIndex, NodeData.FMethodIndex,
-        NodeData.FLeafType);
+      Try
+        GenerateOTACode.GenerateCode(NodeData.FInterfaceObjectIndex, NodeData.FMethodIndex,
+          NodeData.FLeafType, edtTargetSearch.Text);
+      Except
+        On E: ERegularExpressionError Do
+          MessageDlg(Format(strMsg, [edtTargetSearch.Text, E.Message]), mtError, [mbOK], 0);
+      End;
       C := #13;
       OTACodeTreeKeyPress(FOTACodeTree, C);
     End;
@@ -809,8 +826,11 @@ Begin
     FOTACodeTree.Invalidate;
   Except
     On E: ERegularExpressionError Do
-      FUIUpdater.UpdateStatusPanel(Format('RegEx Error in "%s": %s', [edtTargetSearch.Text,
-        E.Message]), sppRegExMsg);
+      Begin
+        FTargeting := False;
+        FUIUpdater.UpdateStatusPanel(Format('RegEx Error in "%s": %s', [edtTargetSearch.Text,
+          E.Message]), sppRegExMsg);
+      End;
   End;
 End;
 
@@ -946,6 +966,36 @@ Begin
         End;
       FreeMem(VerInfo, VerInfoSize);
     End;
+End;
+
+(**
+
+  This method validate the regular expresssion in the edit control passed. If there is an exception
+  the controls text is highlighted as an error.
+
+  @precon  The control passed needs to the a valid TEdit control.
+  @postcon The controls regular expression text is validated.
+
+  @param   RegExControl as a TEdit
+
+**)
+Procedure TfrmOTAIntfSearch.ValidRegEx(RegExControl: TEdit);
+
+Var
+  RE : TRegEx;
+
+Begin
+  Try
+    RE := TRegEx.Create(RegExControl.Text, [roIgnoreCase, roCompiled, roSingleLine]);
+    RegExControl.Font.Color := clWindowText;
+    RegExControl.Color := clWindow;
+  Except
+    On E : ERegularExpressionError Do
+      Begin
+        RegExControl.Font.Color := clRed;
+        RegExControl.Color := clYellow;
+      End;
+  End;
 End;
 
 (**
