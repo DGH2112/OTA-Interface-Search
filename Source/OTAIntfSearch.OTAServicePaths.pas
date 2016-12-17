@@ -1,11 +1,11 @@
 (**
 
-  This module implements the IOISOTAServicePath interface for storing a list of service interfaces
-  with the depth of the associated tree so that the shortest path can be found.
+  This module implements the IOISOTATargetSearchPath interface for storing a list of service
+  interfaces with the depth of the associated tree so that the shortest path can be found.
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    11 Dec 2016
+  @Date    17 Dec 2016
 
 **)
 Unit OTAIntfSearch.OTAServicePaths;
@@ -20,25 +20,25 @@ Uses
 
 Type
   (** A concrete implementation of the IOISOTAServicePath interface, **)
-  TOISOTAServicePaths = Class(TInterfacedObject, IOISOTAServicePaths)
+  TOISOTATargetSearchPaths = Class(TInterfacedObject, IOISOTATargetSearchPaths)
   Strict Private
     Type
       (** A record to describe the elements contained in the collection. **)
-      TServicePath = Record
+      TTargetSearchPath = Record
         FServicePath : PVirtualNode;
         FPathLength  : Integer;
       End;
     (** An IComparer class to allow for custom sorting of the TList<T> collection. **)
-    TServicePathComparer = Class(TComparer<TServicePath>)
+    TTargetSearchPathComparer = Class(TComparer<TTargetSearchPath>)
     Strict Private
     Strict Protected
     Public
-      Function Compare(Const Left, Right : TServicePath) : Integer; Override;
+      Function Compare(Const Left, Right : TTargetSearchPath) : Integer; Override;
     End;
   Strict Private
-    FServicePaths : TList<TServicePath>;
+    FServicePaths : TList<TTargetSearchPath>;
     FOTACodeTree  : TVirtualStringTree;
-    FComparer     : TServicePathComparer;
+    FComparer     : TTargetSearchPathComparer;
   Strict Protected
     Procedure AddServicePath(TreeNode: Pointer);
     Function  ShortestServicePath: Pointer;
@@ -62,12 +62,12 @@ Uses
   @precon  None.
   @postcon Sorts the TList<> by the path length.
 
-  @param   Left  as a TServicePath as a constant
-  @param   Right as a TServicePath as a constant
+  @param   Left  as a TTargetSearchPath as a constant
+  @param   Right as a TTargetSearchPath as a constant
   @return  an Integer
 
 **)
-Function TOISOTAServicePaths.TServicePathComparer.Compare(Const Left, Right: TServicePath): Integer;
+Function TOISOTATargetSearchPaths.TTargetSearchPathComparer.Compare(Const Left, Right: TTargetSearchPath): Integer;
 
 Begin
   Result := Left.FPathLength - Right.FPathLength;
@@ -85,11 +85,11 @@ End;
   @param   TreeNode as a Pointer
 
 **)
-Procedure TOISOTAServicePaths.AddServicePath(TreeNode: Pointer);
+Procedure TOISOTATargetSearchPaths.AddServicePath(TreeNode: Pointer);
 
 Var
   P : PVirtualNode;
-  recServicePath: TServicePath;
+  recServicePath: TTargetSearchPath;
 
 Begin
   recServicePath.FServicePath := TreeNode;
@@ -113,11 +113,11 @@ End;
   @param   vstOTACodeTree as a TVirtualStringTree
 
 **)
-Constructor TOISOTAServicePaths.Create(vstOTACodeTree: TVirtualStringTree);
+Constructor TOISOTATargetSearchPaths.Create(vstOTACodeTree: TVirtualStringTree);
 
 Begin
-  FComparer := TServicePathComparer.Create;
-  FServicePaths := TList<TServicePath>.Create(FComparer);
+  FComparer := TTargetSearchPathComparer.Create;
+  FServicePaths := TList<TTargetSearchPath>.Create(FComparer);
   FOTACodeTree := vstOTACodeTree;
 End;
 
@@ -129,7 +129,7 @@ End;
   @postcon Frees the collection.
 
 **)
-Destructor TOISOTAServicePaths.Destroy;
+Destructor TOISOTATargetSearchPaths.Destroy;
 
 Begin
   FServicePaths.Free;
@@ -147,7 +147,7 @@ End;
   @return  a Pointer
 
 **)
-Function TOISOTAServicePaths.ShortestServicePath: Pointer;
+Function TOISOTATargetSearchPaths.ShortestServicePath: Pointer;
 
 Begin
   Result := Nil;
@@ -163,7 +163,7 @@ End;
   @postcon The collection is sorted.
 
 **)
-Procedure TOISOTAServicePaths.SortServicePaths;
+Procedure TOISOTATargetSearchPaths.SortServicePaths;
 
 Begin
   FServicePaths.Sort;

@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    16 Dec 2016
+  @Date    17 Dec 2016
 
 **)
 Unit OTAIntfSearch.Interfaces;
@@ -210,7 +210,7 @@ Type
   End;
 
   (** An interface to collection service paths to find the shortest. **)
-  IOISOTAServicePaths = Interface
+  IOISOTATargetSearchPaths = Interface
   ['{C60B3C98-9FEC-4566-A0E2-95FD9D364223}']
     Procedure AddServicePath(TreeNode : Pointer);
     Procedure SortServicePaths;

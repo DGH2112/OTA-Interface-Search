@@ -2,9 +2,9 @@
 
 Author: David Hoyle
 
-Version: 1.0
+Version: 1.1
 
-Date: 13 Dec 2016
+Date: 17 Dec 2016
 
 Web Page: http://www.davidghoyle.co.uk/WordPress/?page_id=1481
 
@@ -13,7 +13,7 @@ Web Page: http://www.davidghoyle.co.uk/WordPress/?page_id=1481
 Description
 
 This application is designed to allow the user to search the Open Tools API .pas files for
-Interfaces, methods and properties and to aid the user in finding paths to various interfaces,
+interfaces, methods and properties and to aid the user in finding paths to various interfaces,
 method and properties from different aspects of the API.
 
 In order to compile the software yourself you will need the following components:

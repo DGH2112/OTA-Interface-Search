@@ -101,24 +101,24 @@ Type
           filtered. **)
       iUpdateDelayInterval = 500;
   Strict Private
-    FIniFile: IOISINIFile;
-    FToolsAPIFiles: IOISToolsAPIFiles;
-    FUIUpdater: IOISInterfacesUIUpdater;
-    FFileParser: IOISFileParser;
-    FProgressManager: IOISProgressManager;
-    FInterfacesTree: TVirtualStringTree;
-    FOTACodeTree: TVirtualStringTree;
-    FFiltering: Boolean;
-    FTargeting: Boolean;
-    FSearchRegEx: TRegEx;
-    FTargetSearchRegEx: TRegEx;
-    FInterfaceRegEx: TRegEx;
-    FProcedureRegEx: TRegEx;
-    FFunctionRegEx: TRegEx;
-    FPropertyRegEx: TRegEx;
-    FCodeView: TSynEdit;
-    FSearchLastEdited: Int64;
-    FTargetLastEdited: Int64;
+    FIniFile           : IOISINIFile;
+    FToolsAPIFiles     : IOISToolsAPIFiles;
+    FUIUpdater         : IOISInterfacesUIUpdater;
+    FFileParser        : IOISFileParser;
+    FProgressManager   : IOISProgressManager;
+    FInterfacesTree    : TVirtualStringTree;
+    FOTACodeTree       : TVirtualStringTree;
+    FFiltering         : Boolean;
+    FTargeting         : Boolean;
+    FSearchRegEx       : TRegEx;
+    FTargetSearchRegEx : TRegEx;
+    FInterfaceRegEx    : TRegEx;
+    FProcedureRegEx    : TRegEx;
+    FFunctionRegEx     : TRegEx;
+    FPropertyRegEx     : TRegEx;
+    FCodeView          : TSynEdit;
+    FSearchLastEdited  : Int64;
+    FTargetLastEdited  : Int64;
   private
     procedure ParseTargetSearch;
   Strict Protected

@@ -36,6 +36,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabInterfaces: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Interfaces'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object splViews: TSplitter
         Left = 0
         Top = 298
@@ -62,10 +66,18 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         object tabCodeView: TTabSheet
           AlignWithMargins = True
           Caption = '&Code'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
         object tabCreationPaths: TTabSheet
           AlignWithMargins = True
           Caption = 'Creation &Paths'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object splPaths: TSplitter
             Left = 0
             Top = 114
@@ -93,14 +105,12 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
               AlignWithMargins = True
               Left = 5
               Top = 5
-              Width = 734
-              Height = 20
+              Width = 4
+              Height = 16
               Align = alClient
               Alignment = taCenter
               Layout = tlCenter
               WordWrap = True
-              ExplicitWidth = 4
-              ExplicitHeight = 16
             end
           end
         end
@@ -222,6 +232,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabToolsAPIFiles: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Files'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlButtons: TPanel
         AlignWithMargins = True
         Left = 3
@@ -357,7 +371,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Left = 40
     Top = 88
     Bitmap = {
-      494C010106000800740010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010106000800780010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
