@@ -572,7 +572,8 @@ Begin
   If Result Then
     Begin
       P := AddNode(ParentNode, FFileIndex, iParentInterface, 0, ltBorlandIDEServices);
-      FOISTargetSearchPaths.AddServicePath(P);
+      If Not FTargeting Then
+        FOISTargetSearchPaths.AddServicePath(P);
     End;
 End;
 
