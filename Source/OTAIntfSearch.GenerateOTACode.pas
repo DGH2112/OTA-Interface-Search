@@ -1,11 +1,11 @@
 (**
 
-  this module contains code to attempt to generate information (creation path) and possibly code
+  This module contains code to attempt to generate information (creation path) and possibly code
   that will help other access the Open Tools API.
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    10 Dec 2016
+  @Date    17 Dec 2016
 
 **)
 Unit OTAIntfSearch.GenerateOTACode;
@@ -16,22 +16,26 @@ Uses
   Classes,
   OTAIntfSearch.Interfaces,
   OTAIntfSearch.Types,
-  VirtualTrees;
+  VirtualTrees,
+  RegularExpressions;
 
 Type
   (** A class which implements the IOISgenerateOTACode interface for generating OTA code. **)
   TOISGenerateOTACode = Class(TInterfacedObject, IOISGenerateOTACode)
   Strict Private
-    FOISToolsAPIFiles   : IOISToolsAPIFiles;
-    FFileIndex          : Integer;
-    FToolsAPIFile       : IOISToolsAPIFile;
-    FOTACodeTree        : TVirtualStringTree;
-    FOISProgressManager : IOISProgressManager;
-    FOISInterfaceIndex  : IOISInterfaceIndex;
-    FOISServicePaths    : IOISOTAServicePaths;
-    FNodeCount          : Integer;
+    FOISToolsAPIFiles     : IOISToolsAPIFiles;
+    FFileIndex            : Integer;
+    FToolsAPIFile         : IOISToolsAPIFile;
+    FOTACodeTree          : TVirtualStringTree;
+    FOISProgressManager   : IOISProgressManager;
+    FOISInterfaceIndex    : IOISInterfaceIndex;
+    FOISTargetSearchPaths : IOISOTATargetSearchPaths;
+    FNodeCount            : Integer;
+    FTargetSearchRegEx    : TRegEx;
+    FTargeting            : Boolean;
   Strict Protected
-    Procedure GenerateCode(iInterfaceObjectIndex, iMethodIndex : Integer; LeafType : TLeafType);
+    Procedure GenerateCode(iInterfaceObjectIndex, iMethodIndex : Integer; LeafType : TLeafType;
+      strTargetSearch : String);
     Function GetIdentifier(iInterfaceObjectIndex, iMethodIndex : Integer;
       LeafType : TLeafType) : String;
     Function AddNode(ParentNode: Pointer; iFileIndex, iInterfaceObjectIndex, iMethodIndex : Integer;
@@ -50,6 +54,8 @@ Type
     Function  IsQueryInterface(ParentNode : PVirtualNode; strIdent : String;
       iParentInterface : Integer) : Boolean;
     Procedure BuildIndex;
+    Procedure HideNonTargettedNodes(StartingNode : PVirtualNode);
+    Function  IsTarget(Node : PVirtualNode) : Boolean;
   Public
     Constructor Create(OISToolsAPIFiles : IOISToolsAPIFiles; iFileIndex : Integer;
       vstOTACodeTree : TVirtualStringTree; OISProgressManager : IOISProgressManager);
@@ -61,7 +67,6 @@ Implementation
 Uses
   //CodeSiteLogging,
   SysUtils,
-  RegularExpressions,
   OTAIntfSearch.Constants,
   OTAIntfSearch.Functions,
   OTAIntfSearch.InterfaceIndex, OTAIntfSearch.OTAServicePaths;
@@ -91,6 +96,8 @@ Var
 Begin
   strIdent := GetIdentifier(iInterfaceObjectIndex, 0, ltType);
   Result := AddNode(ParentNode, FFileIndex, iInterfaceObjectIndex, 0, ltType);
+  If IsTarget(Result) Then
+    Exit;
   If IsDuplicate(Result, strIdent, iInterfaceObjectIndex) Then
     Exit;
   FindInterfaceRef(Result, strIdent, iInterfaceObjectIndex);
@@ -122,6 +129,8 @@ Var
 Begin
   strIdent := GetIdentifier(iInterfaceObjectIndex, iMethodIndex, ltFunction);
   Result := AddNode(ParentNode, FFileIndex, iInterfaceObjectIndex, iMethodIndex, ltFunction);
+  If IsTarget(Result) Then
+    Exit;
   Result := AddInterface(Result, iInterfaceObjectIndex);
 End;
 
@@ -145,6 +154,7 @@ Function TOISGenerateOTACode.AddNode(ParentNode: Pointer; iFileIndex, iInterface
 
 Var
   NodeData : PTreeData;
+  P : PVirtualNode;
 
 Begin
   Result := FOTACodeTree.AddChild(ParentNode);
@@ -153,6 +163,20 @@ Begin
   NodeData.FFileIndex := FFileIndex;
   NodeData.FInterfaceObjectIndex := iInterfaceObjectIndex;
   NodeData.FMethodIndex := iMethodIndex;
+  NodeData.FTargetSearch := tsrNotFound;
+  If FTargeting Then
+    If FTargetSearchRegEx.IsMatch(FOTACodeTree.Text[Result, 0]) Then
+      Begin
+        NodeData.FTargetSearch := tsrFound;
+        // Mark path to node as found
+        P := FOTACodeTree.NodeParent[Result];
+        While P <> Nil Do
+          Begin
+            NodeData := FOTACodeTree.GetNodeData(P);
+            NodeData.FTargetSearch := tsrFound;
+            P := FOTACodeTree.NodeParent[P];
+          End;
+      End;
   Inc(FNodeCount);
 End;
 
@@ -212,7 +236,7 @@ Constructor TOISGenerateOTACode.Create(OISToolsAPIFiles : IOISToolsAPIFiles; iFi
   vstOTACodeTree : TVirtualStringTree; OISProgressManager : IOISProgressManager);
 
 Begin
-  FOISServicePaths := TOISOTAServicePaths.Create(vstOTACodeTree);
+  FOISTargetSearchPaths := TOISOTATargetSearchPaths.Create(vstOTACodeTree);
   FOISToolsAPIFiles := OISToolsAPIFiles;
   FFileIndex := iFileIndex;
   FToolsAPIFile := FOISToolsAPIFiles.ToolsAPIFile[iFileIndex];
@@ -288,15 +312,19 @@ End;
   @param   iInterfaceObjectIndex as an Integer
   @param   iMethodIndex          as an Integer
   @param   LeafType              as a TLeafType
+  @param   strTargetSearch       as a String
 
 **)
 Procedure TOISGenerateOTACode.GenerateCode(iInterfaceObjectIndex, iMethodIndex : Integer;
-  LeafType : TLeafType);
+  LeafType : TLeafType; strTargetSearch : String);
 
 Var
   N: PVirtualNode;
 
 Begin
+  FTargeting := strTargetSearch <> '';
+  If FTargeting Then
+    FTargetSearchRegEx := TRegEx.Create(strTargetSearch, [roIgnoreCase, roCompiled, roSingleLine]);
   FOTACodeTree.BeginUpdate;
   Try
     FOTACodeTree.Clear;
@@ -305,11 +333,15 @@ Begin
     Try
       BuildIndex;
       Case LeafType Of
-        ltType: AddInterface(Nil, iInterfaceObjectIndex);
-        ltFunction: AddMethod(Nil, iInterfaceObjectIndex, iMethodIndex);
+        ltType: N := AddInterface(Nil, iInterfaceObjectIndex);
+        ltFunction: N := AddMethod(Nil, iInterfaceObjectIndex, iMethodIndex);
+      Else
+        N := Nil;
       End;
-      FOISServicePaths.SortServicePaths;
-      N := FOISServicePaths.ShortestServicePath;
+      If FTargeting Then
+        HideNonTargettedNodes(N);
+      FOISTargetSearchPaths.SortServicePaths;
+      N := FOISTargetSearchPaths.ShortestServicePath;
       If N <> Nil Then
         Begin
           FOTACodeTree.VisiblePath[N] := True;
@@ -347,6 +379,53 @@ Begin
       MethodProperty[iMethodIndex];
   End;
   Result := GetCodeIdentifier(Result, LeafType);
+End;
+
+(**
+
+  This method hides an nodes in the OTA Code Tree that have not matched the target search or on a
+  path to a target search.
+
+  @precon  StartingNode must be a valid node.
+  @postcon Nodes no matching the target search are hidden.
+
+  @param   StartingNode as a PVirtualNode
+
+**)
+Procedure TOISGenerateOTACode.HideNonTargettedNodes(StartingNode : PVirtualNode);
+
+Begin
+  If StartingNode <> Nil Then
+    FOTACodeTree.IterateSubtree(
+      StartingNode,
+      Procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer;
+        Var Abort: Boolean)
+      Var
+        NodeData: PTreeData;
+        N: PVirtualNode;
+        strText: String;
+        ToolsAPIFile: IOISToolsAPIFile;
+      Begin
+        NodeData := Sender.GetNodeData(Node);
+        ToolsAPIFile := FOISToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
+        If NodeData.FLeafType = ltType Then
+          strText := ToolsAPIFile.InterfaceObject[NodeData.FInterfaceObjectIndex]
+        Else
+          strText := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
+            MethodProperty[NodeData.FMethodIndex];
+        Sender.IsVisible[Node] := NodeData.FTargetSearch = tsrFound;
+        If Sender.IsVisible[Node] Then
+          Begin
+            N := Sender.NodeParent[Node];
+            While N <> Nil Do
+              Begin
+                Sender.IsVisible[N] := True;
+                N := Sender.NodeParent[N];
+              End;
+          End;
+      End,
+      Nil
+      );
 End;
 
 (**
@@ -493,8 +572,33 @@ Begin
   If Result Then
     Begin
       P := AddNode(ParentNode, FFileIndex, iParentInterface, 0, ltBorlandIDEServices);
-      FOISServicePaths.AddServicePath(P);
+      FOISTargetSearchPaths.AddServicePath(P);
     End;
+End;
+
+(**
+
+  This method checks the given node as to whether its a target search node and if so returns true
+  and adds the node to the TargetSearchPaths collection.
+
+  @precon  Node must be a valid node.
+  @postcon Checks the given node as to whether its a target search node and if so returns true
+           and adds the node to the TargetSearchPaths collection.
+
+  @param   Node as a PVirtualNode
+  @return  a Boolean
+
+**)
+Function TOISGenerateOTACode.IsTarget(Node : PVirtualNode): Boolean;
+
+Begin
+  Result := False;
+  If FTargeting Then
+    If FTargetSearchRegEx.IsMatch(FOTACodeTree.Text[Node, 0]) Then
+      Begin
+        FOISTargetSearchPaths.AddServicePath(Node);
+        Result := True;
+      End;
 End;
 
 End.

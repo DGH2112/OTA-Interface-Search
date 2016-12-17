@@ -1,12 +1,12 @@
 (**
 
-  this module contains the main form interface for the application which is design to allow a user
+  This module contains the main form interface for the application which is design to allow a user
   tp search for Open Tools API (OTA) classes and interfaces / methods and properties across multiple
   search directories.
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    10 Dec 2016
+  @Date    17 Dec 2016
 
 **)
 Unit OTAIntfSearch.MainForm;
@@ -62,6 +62,10 @@ Type
     pnlPath: TPanel;
     lblPath: TLabel;
     splPaths: TSplitter;
+    grdPanel: TGridPanel;
+    edtTargetSearch: TEdit;
+    lblInterfaceMethodFilter: TLabel;
+    lblTargetSearchFilter: TLabel;
     Procedure FormCreate(Sender: TObject);
     Procedure FormDestroy(Sender: TObject);
     Procedure FormShow(Sender: TObject);
@@ -82,35 +86,41 @@ Type
       Kind: TVTImageKind; Column: TColumnIndex; Var Ghosted: Boolean; Var ImageIndex: Integer);
     Procedure vstInterfacesGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; Var LineBreakStyle: TVTTooltipLineBreakStyle; Var HintText: String);
-    Procedure vstInterfacesKeyPress(Sender : TObject; var Key : Char);
-    Procedure OTACodeTreeKeyPress(Sender : TObject; var Key : Char);
+    Procedure vstInterfacesKeyPress(Sender: TObject; Var Key: Char);
+    Procedure OTACodeTreeKeyPress(Sender: TObject; Var Key: Char);
     Procedure btnEditClick(Sender: TObject);
     Procedure stbrStatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; Const Rect: TRect);
-    procedure vstInterfacesClick(Sender: TObject);
-    procedure OTACodeTreeClick(Sender: TObject);
-    Procedure tmTimerEvent(Sender : TObject);
-    procedure pagViewsChange(Sender: TObject);
+    Procedure vstInterfacesClick(Sender: TObject);
+    Procedure OTACodeTreeClick(Sender: TObject);
+    Procedure tmTimerEvent(Sender: TObject);
+    Procedure pagViewsChange(Sender: TObject);
+    procedure edtTargetSearchChange(Sender: TObject);
   Strict Private
     Const
       (** a constant to define the time period after typing a reg ex search before the treeview is
           filtered. **)
       iUpdateDelayInterval = 500;
   Strict Private
-    FIniFile: IOISINIFile;
-    FToolsAPIFiles: IOISToolsAPIFiles;
-    FUIUpdater: IOISInterfacesUIUpdater;
-    FFileParser: IOISFileParser;
-    FProgressManager : IOISProgressManager;
-    FInterfacesTree: TVirtualStringTree;
-    FOTACodeTree: TVirtualStringTree;
-    FFiltering: Boolean;
-    FSearchRegEx: TRegEx;
-    FInterfaceRegEx: TRegEx;
-    FProcedureRegEx: TRegEx;
-    FFunctionRegEx: TRegEx;
-    FPropertyRegEx: TRegEx;
-    FCodeView : TSynEdit;
-    FLastEdited : Int64;
+    FIniFile           : IOISINIFile;
+    FToolsAPIFiles     : IOISToolsAPIFiles;
+    FUIUpdater         : IOISInterfacesUIUpdater;
+    FFileParser        : IOISFileParser;
+    FProgressManager   : IOISProgressManager;
+    FInterfacesTree    : TVirtualStringTree;
+    FOTACodeTree       : TVirtualStringTree;
+    FFiltering         : Boolean;
+    FTargeting         : Boolean;
+    FSearchRegEx       : TRegEx;
+    FTargetSearchRegEx : TRegEx;
+    FInterfaceRegEx    : TRegEx;
+    FProcedureRegEx    : TRegEx;
+    FFunctionRegEx     : TRegEx;
+    FPropertyRegEx     : TRegEx;
+    FCodeView          : TSynEdit;
+    FSearchLastEdited  : Int64;
+    FTargetLastEdited  : Int64;
+  private
+    procedure ParseTargetSearch;
   Strict Protected
     Procedure CreateCustomInterfaceStringTree;
     Procedure CreateCustomOTACodeStringTree;
@@ -120,9 +130,11 @@ Type
     Procedure LoadSettings;
     Procedure SaveSettings;
     Procedure FilterChanged;
-    Procedure GenerateOTACode(NodeData : PTreeData);
+    Procedure GenerateOTACode(NodeData: PTreeData);
     Procedure UpdateFormTitle;
     Procedure ParseFilesAndFilter;
+    Function  FilterInterfaceTreeView(N : PVirtualNode) : Integer;
+    Procedure ValidRegEx(RegExControl : TEdit);
   Public
   End;
 
@@ -140,6 +152,7 @@ Uses
   SysUtils,
   RegularExpressionsCore,
   Types,
+  UITypes,
   OTAIntfSearch.MemIniFile,
   OTAIntfSearch.ToolsAPIFiles,
   OTAIntfSearch.BrowseFolderForm,
@@ -235,7 +248,8 @@ Procedure TfrmOTAIntfSearch.CreateCachedRegExs;
 
 Begin
   FInterfaceRegEx := TRegEx.Create(strInterfaceRegEx, [roIgnoreCase, roCompiled, roSingleLine]);
-  FProcedureRegEx := TRegEx.Create(strProcedureStartRegEx, [roIgnoreCase, roCompiled, roSingleLine]);
+  FProcedureRegEx := TRegEx.Create(strProcedureStartRegEx,
+    [roIgnoreCase, roCompiled, roSingleLine]);
   FFunctionRegEx := TRegEx.Create(strFunctionStartRegEx, [roIgnoreCase, roCompiled, roSingleLine]);
   FPropertyRegEx := TRegEx.Create(strPropertyStartRegEx, [roIgnoreCase, roCompiled, roSingleLine]);
 End;
@@ -287,7 +301,7 @@ Begin
   FInterfacesTree.OnPaintText := vstInterfacesPaintText;
   FInterfacesTree.OnGetImageIndex := vstInterfacesGetImageIndex;
   FInterfacesTree.OnGetHint := vstInterfacesGetHint;
-  FinterfacesTree.OnKeyPress := vstInterfacesKeyPress;
+  FInterfacesTree.OnKeyPress := vstInterfacesKeyPress;
   FInterfacesTree.NodeDataSize := SizeOf(TTreeData);
   FInterfacesTree.TabOrder := 1;
 End;
@@ -349,7 +363,26 @@ End;
 Procedure TfrmOTAIntfSearch.edtFilterChange(Sender: TObject);
 
 Begin
-  FLastEdited := GetTickCount;
+  FSearchLastEdited := GetTickCount;
+  ValidRegEx(edtFilter);
+End;
+
+(**
+
+  This is an on change event handler for the Target Search edit control
+
+  @precon  None.
+  @postcon This method updates the last time the target search was edited with the current tick
+           count.
+
+  @param   Sender as a TObject
+
+**)
+Procedure TfrmOTAIntfSearch.edtTargetSearchChange(Sender: TObject);
+
+Begin
+  FTargetLastEdited := GetTickCount;
+  ValidRegEx(edtTargetSearch);
 End;
 
 (**
@@ -382,44 +415,7 @@ Begin
       N := FInterfacesTree.RootNode.FirstChild;
       While N <> Nil Do
         Begin
-          iVisible := 0;
-          FInterfacesTree.IterateSubtree(
-            N,
-            Procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer;
-              Var Abort: Boolean)
-            Var
-              NodeData: PTreeData;
-              N: PVirtualNode;
-              strText: String;
-              ToolsAPIFile: IOISToolsAPIFile;
-            Begin
-              NodeData := Sender.GetNodeData(Node);
-              If FFiltering And (NodeData.FLeafType In [ltType, ltFunction]) Then
-                Begin
-                  ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
-                  If NodeData.FLeafType = ltType Then
-                    strText := ToolsAPIFile.InterfaceObject[NodeData.FInterfaceObjectIndex]
-                  Else
-                    strText := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
-                      MethodProperty[NodeData.FMethodIndex];
-                  Sender.IsVisible[Node] := Not FFiltering Or
-                    FSearchRegEx.IsMatch(strText);
-                  If Sender.IsVisible[Node] Then
-                    Begin
-                      Inc(iVisible);
-                      N := Sender.NodeParent[Node];
-                      While N <> Nil Do
-                        Begin
-                          Sender.IsVisible[N] := True;
-                          N := Sender.NodeParent[N];
-                        End;
-                    End;
-                End
-              Else
-                Sender.IsVisible[Node] := True;
-            End,
-            Nil
-            );
+          iVisible := FilterInterfaceTreeView(N);
           FInterfacesTree.IsVisible[N] := Not FFiltering Or (iVisible > 0);
           Inc(iVisibleTotal, iVisible);
           N := FInterfacesTree.GetNextSibling(N);
@@ -427,15 +423,78 @@ Begin
     Finally
       FInterfacesTree.EndUpdate;
     End;
-    FUIUpdater.UpdateStatusPanel('RegExp Okay', sppRegExMsg);
+    FUIUpdater.UpdateStatusPanel('RegEx Okay', sppRegExMsg);
   Except
     On E: ERegularExpressionError Do
-      FUIUpdater.UpdateStatusPanel('RegExp Error: ' + E.Message, sppRegExMsg);
+      Begin
+        FFiltering := False;
+        FUIUpdater.UpdateStatusPanel(Format('RegEx Error in "%s": %s', [edtFilter.Text, E.Message]),
+          sppRegExMsg);
+      End;
   End;
   If FFiltering Then
     FUIUpdater.UpdateStatusPanel(Format('%d Matches', [iVisibleTotal]), sppMatches)
   Else
     FUIUpdater.UpdateStatusPanel('Showing All.', sppMatches);
+End;
+
+(**
+
+  This method filter the interface tree view based on the filter regular expression but hiding
+  the nodes that dont match (paths to visible nodes are kept).
+
+  @precon  N must be a valid tree node.
+  @postcon The nodes that dont match the filter are hidden.
+
+  @param   N as a PVirtualNode
+  @return  an Integer
+
+**)
+Function TfrmOTAIntfSearch.FilterInterfaceTreeView(N : PVirtualNode) : Integer;
+
+Var
+  iVisible : Integer;
+
+Begin
+  iVisible := 0;
+  FInterfacesTree.IterateSubtree(
+    N,
+    Procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer;
+      Var Abort: Boolean)
+    Var
+      NodeData: PTreeData;
+      N: PVirtualNode;
+      strText: String;
+      ToolsAPIFile: IOISToolsAPIFile;
+    Begin
+      NodeData := Sender.GetNodeData(Node);
+      If FFiltering And (NodeData.FLeafType In [ltType, ltFunction]) Then
+        Begin
+          ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
+          If NodeData.FLeafType = ltType Then
+            strText := ToolsAPIFile.InterfaceObject[NodeData.FInterfaceObjectIndex]
+          Else
+            strText := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
+              MethodProperty[NodeData.FMethodIndex];
+          Sender.IsVisible[Node] := Not FFiltering Or
+            FSearchRegEx.IsMatch(strText);
+          If Sender.IsVisible[Node] Then
+            Begin
+              Inc(iVisible);
+              N := Sender.NodeParent[Node];
+              While N <> Nil Do
+                Begin
+                  Sender.IsVisible[N] := True;
+                  N := Sender.NodeParent[N];
+                End;
+            End;
+        End
+      Else
+        Sender.IsVisible[Node] := True;
+    End,
+    Nil
+    );
+  Result := iVisible;
 End;
 
 (**
@@ -513,10 +572,13 @@ End;
   @param   NodeData as a PTreeData
 
 **)
-Procedure TfrmOTAIntfSearch.GenerateOTACode(NodeData : PTreeData);
+Procedure TfrmOTAIntfSearch.GenerateOTACode(NodeData: PTreeData);
+
+Const
+  strMsg = 'Exception in regular expression "%s":'#13#10'%s';
 
 Var
-  GenerateOTACode : IOISGenerateOTACode;
+  GenerateOTACode: IOISGenerateOTACode;
   C: Char;
 
 Begin
@@ -524,8 +586,13 @@ Begin
     Begin
       GenerateOTACode := TOISGenerateOTACode.Create(FToolsAPIFiles, NodeData.FFileIndex,
         FOTACodeTree, FProgressManager);
-      GenerateOTACode.GenerateCode(NodeData.FInterfaceObjectIndex, NodeData.FMethodIndex,
-        NodeData.FLeafType);
+      Try
+        GenerateOTACode.GenerateCode(NodeData.FInterfaceObjectIndex, NodeData.FMethodIndex,
+          NodeData.FLeafType, edtTargetSearch.Text);
+      Except
+        On E: ERegularExpressionError Do
+          MessageDlg(Format(strMsg, [edtTargetSearch.Text, E.Message]), mtError, [mbOK], 0);
+      End;
       C := #13;
       OTACodeTreeKeyPress(FOTACodeTree, C);
     End;
@@ -551,6 +618,7 @@ Begin
   Height := FIniFile.ReadInteger('Setup', 'Height', Height);
   Width := FIniFile.ReadInteger('Setup', 'Width', Width);
   edtFilter.Text := FIniFile.ReadString('Setup', 'FilterText', '');
+  edtTargetSearch.Text := FIniFile.ReadString('Setup', 'TargetSearch', '');
   pagViews.ActivePageIndex := FIniFile.ReadInteger('Setup', 'ActiveViewIndex', 0);
   pagViews.Height := FIniFile.ReadInteger('Setup', 'CodeHeight', splViews.MinSize);
   pnlPath.Height := FIniFile.ReadInteger('Setup', 'PathsHeight', splPaths.MinSize);
@@ -580,27 +648,27 @@ End;
 Procedure TfrmOTAIntfSearch.lbxFilesDragDrop(Sender, Source: TObject; X, Y: Integer);
 
 Var
-  iCurIndex, iDropIndex : Integer;
-  P : TPoint;
-  strFileName : String;
+  iCurIndex, iDropIndex: Integer;
+  P: TPoint;
+  strFileName: String;
 
 Begin
   iCurIndex := lbxFiles.ItemIndex;
   P := Point(X, Y);
   iDropIndex := lbxFiles.ItemAtPos(P, False);
-  If (iCurIndex <> iDropIndex) And (iDropIndex > -1) Then
+  If (iCurIndex <> iDropIndex) And (iDropIndex > - 1) Then
     Begin
       If iDropIndex > iCurIndex Then
         Begin
           strFileName := lbxFiles.Items[iCurIndex];
-          lbxFiles.Items.Insert(iDropIndex, strFilename);
+          lbxFiles.Items.Insert(iDropIndex, strFileName);
           lbxFiles.Items.Delete(iCurIndex);
         End
       Else If iDropIndex < iCurIndex Then
         Begin
           strFileName := lbxFiles.Items[iCurIndex];
           lbxFiles.Items.Delete(iCurIndex);
-          lbxFiles.Items.Insert(iDropIndex, strFilename);
+          lbxFiles.Items.Insert(iDropIndex, strFileName);
         End;
       ParseFilesAndFilter;
     End;
@@ -622,7 +690,7 @@ End;
 
 **)
 Procedure TfrmOTAIntfSearch.lbxFilesDragOver(Sender, Source: TObject; X, Y: Integer;
-  State: TDragState; Var Accept: Boolean);
+State: TDragState; Var Accept: Boolean);
 
 Begin
   Accept := (Sender = Source) And (Source = lbxFiles);
@@ -663,7 +731,7 @@ Procedure TfrmOTAIntfSearch.OTACodeTreeClick(Sender: TObject);
 
 Var
   N: PVirtualNode;
-  NodeData : PTreeData;
+  NodeData: PTreeData;
 
 Begin
   lblPath.Caption := '';
@@ -739,6 +807,35 @@ End;
 
 (**
 
+  This method parses the target search regular expression for highlighting the text.
+
+  @precon  None.
+  @postcon The regular expression is parsed and the tree views highlighted.
+
+**)
+Procedure TfrmOTAIntfSearch.ParseTargetSearch;
+
+Begin
+  Try
+    FTargeting := edtTargetSearch.Text <> '';
+    If FTargeting Then
+      FTargetSearchRegEx := TRegEx.Create(edtTargetSearch.Text,
+        [roIgnoreCase, roCompiled, roSingleLine]);
+    FUIUpdater.UpdateStatusPanel('RegEx Okay', sppRegExMsg);
+    FInterfacesTree.Invalidate;
+    FOTACodeTree.Invalidate;
+  Except
+    On E: ERegularExpressionError Do
+      Begin
+        FTargeting := False;
+        FUIUpdater.UpdateStatusPanel(Format('RegEx Error in "%s": %s', [edtTargetSearch.Text,
+          E.Message]), sppRegExMsg);
+      End;
+  End;
+End;
+
+(**
+
   This mehod saves the applications settings to the INI File.
 
   @precon  None.
@@ -756,6 +853,7 @@ Begin
   FIniFile.WriteInteger('Setup', 'Height', Height);
   FIniFile.WriteInteger('Setup', 'Width', Width);
   FIniFile.WriteString('Setup', 'FilterText', edtFilter.Text);
+  FIniFile.WriteString('Setup', 'TargetSearch', edtTargetSearch.Text);
   FIniFile.WriteInteger('Setup', 'CodeHeight', pagViews.Height);
   FIniFile.WriteInteger('Setup', 'ActiveViewIndex', pagViews.ActivePageIndex);
   FIniFile.WriteInteger('Setup', 'PathsHeight', pnlPath.Height);
@@ -780,7 +878,7 @@ End;
 
 **)
 Procedure TfrmOTAIntfSearch.stbrStatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
-  Const Rect: TRect);
+Const Rect: TRect);
 
 Var
   strText: String;
@@ -807,15 +905,20 @@ End;
   @param   Sender as a TObject
 
 **)
-Procedure TfrmOTAIntfSearch.tmTimerEvent(Sender : TObject);
+Procedure TfrmOTAIntfSearch.tmTimerEvent(Sender: TObject);
 
 Begin
   tmTimer.Enabled := False;
   Try
-    If (FLastEdited <> 0) And (GetTickCount > FLastEdited + iUpdateDelayInterval) Then
+    If (FSearchLastEdited <> 0) And (GetTickCount > FSearchLastEdited + iUpdateDelayInterval) Then
       Begin
         FilterChanged;
-        FLastEdited := 0;
+        FSearchLastEdited := 0;
+      End;
+    If (FTargetLastEdited <> 0) And (GetTickCount > FTargetLastEdited + iUpdateDelayInterval) Then
+      Begin
+        ParseTargetSearch;
+        FTargetLastEdited := 0;
       End;
   Finally
     tmTimer.Enabled := True;
@@ -843,7 +946,7 @@ Var
   VerValueSize: DWORD;
   VerValue: PVSFixedFileInfo;
   Dummy: DWORD;
-  iMajor, iMinor, iBugFix, iBuild : Word;
+  iMajor, iMinor, iBugFix, iBuild: Word;
 
 Begin
   VerInfoSize := GetFileVersionInfoSize(PChar(ParamStr(0)), Dummy);
@@ -852,17 +955,47 @@ Begin
       GetMem(VerInfo, VerInfoSize);
       GetFileVersionInfo(PChar(ParamStr(0)), 0, VerInfoSize, VerInfo);
       VerQueryValue(VerInfo, '\', Pointer(VerValue), VerValueSize);
-      with VerValue^ do
-      begin
-        iMajor := dwFileVersionMS shr 16;
-        iMinor := dwFileVersionMS and $FFFF;
-        iBugfix := dwFileVersionLS shr 16;
-        iBuild := dwFileVersionLS and $FFFF;
-        Caption := Format(strBuild, [Application.Title, iMajor, iMinor, strBugFix[Succ(iBugFix)],
-          iMajor, iMinor, iBugfix, iBuild]);
-      end;
+      With VerValue^ Do
+        Begin
+          iMajor := dwFileVersionMS Shr 16;
+          iMinor := dwFileVersionMS And $FFFF;
+          iBugFix := dwFileVersionLS Shr 16;
+          iBuild := dwFileVersionLS And $FFFF;
+          Caption := Format(strBuild, [Application.Title, iMajor, iMinor, strBugFix[Succ(iBugFix)],
+            iMajor, iMinor, iBugFix, iBuild]);
+        End;
       FreeMem(VerInfo, VerInfoSize);
     End;
+End;
+
+(**
+
+  This method validate the regular expresssion in the edit control passed. If there is an exception
+  the controls text is highlighted as an error.
+
+  @precon  The control passed needs to the a valid TEdit control.
+  @postcon The controls regular expression text is validated.
+
+  @param   RegExControl as a TEdit
+
+**)
+Procedure TfrmOTAIntfSearch.ValidRegEx(RegExControl: TEdit);
+
+Var
+  RE : TRegEx;
+
+Begin
+  Try
+    RE := TRegEx.Create(RegExControl.Text, [roIgnoreCase, roCompiled, roSingleLine]);
+    RegExControl.Font.Color := clWindowText;
+    RegExControl.Color := clWindow;
+  Except
+    On E : ERegularExpressionError Do
+      Begin
+        RegExControl.Font.Color := clRed;
+        RegExControl.Color := clYellow;
+      End;
+  End;
 End;
 
 (**
@@ -882,40 +1015,53 @@ End;
 Procedure TfrmOTAIntfSearch.vstInterfacesAfterCellPaint(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; CellRect: TRect);
 
+  (**
+
+    This local method highlights the text matches passed in the given colour.
+
+    @precon  None.
+    @postcon If there are matches these are highlighed.
+
+    @param   MC      as a TMatchCollection
+    @param   strText as a String
+    @param   iColor  as a TColor
+
+  **)
+  Procedure HighlightText(MC : TMatchCollection; strText : String; iColor : TColor);
+
+  Var
+    iStart: Integer;
+    iMatch: Integer;
+    M: TMatch;
+    iLeft: Integer;
+
+  Begin
+    iStart := 18 + 26 + Sender.GetNodeLevel(Node) * (Sender As TVirtualStringTree).Indent;
+    For iMatch := 0 To MC.Count - 1 Do
+      Begin
+        M := MC[iMatch];
+        TargetCanvas.Brush.Color := iColor;
+        iLeft := TargetCanvas.TextWidth(Copy(strText, 1, M.Index - 1));
+        TargetCanvas.TextOut(iStart + iLeft, CellRect.Top, Copy(strText,
+          M.Index, M.Length));
+      End;
+  End;
+
 Var
   NodeData: PTreeData;
   strText: String;
-  MC: TMatchCollection;
-  M: TMatch;
-  iMatch: Integer;
-  iLeft: Integer;
-  iStart: Integer;
   ToolsAPIFile: IOISToolsAPIFile;
 
 Begin
-  If FFiltering Then
+  NodeData := Sender.GetNodeData(Node);
+  If (Column = 0) And (NodeData.FLeafType In [ltType..ltQueryInterface]) Then
     Begin
-      NodeData := Sender.GetNodeData(Node);
-      If (Column = 0) And (NodeData.FLeafType In [ltType, ltFunction]) Then
-        Begin
-          ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
-          If NodeData.FLeafType = ltType Then
-            strText := ToolsAPIFile.InterfaceObject[NodeData.FInterfaceObjectIndex]
-          Else
-            strText := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
-              MethodProperty[NodeData.FMethodIndex];
-          MC := FSearchRegEx.Matches(strText);
-          iStart := 18 + 26 + Sender.GetNodeLevel(Node) * (Sender As TVirtualStringTree).Indent;
-          For iMatch := 0 To MC.Count - 1 Do
-            Begin
-              M := MC[iMatch];
-              TargetCanvas.Brush.Color := $D0FFFF;
-              TargetCanvas.Font.Color := clNavy;
-              iLeft := TargetCanvas.TextWidth(Copy(strText, 1, M.Index - 1));
-              TargetCanvas.TextOut(iStart + iLeft, CellRect.Top, Copy(strText,
-                M.Index, M.Length));
-            End;
-        End;
+      ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
+      strText := (Sender As TVirtualStringTree).Text[Node, 0];
+      If FFiltering Then
+        HighlightText(FSearchRegEx.Matches(strText), strText, $D0FFFF);
+      If FTargeting Then
+        HighlightText(FTargetSearchRegEx.Matches(strText), strText, $00FF00);
     End;
 End;
 
@@ -934,7 +1080,7 @@ End;
 Procedure TfrmOTAIntfSearch.vstInterfacesClick(Sender: TObject);
 
 Var
-  NodeData : PTreeData;
+  NodeData: PTreeData;
   ToolsAPIFile: IOISToolsAPIFile;
 
 Begin
@@ -961,7 +1107,8 @@ Begin
           End;
       End;
       GenerateOTACode(NodeData);
-    End Else
+    End
+  Else
     Begin
       FCodeView.Lines.Clear;
       FOTACodeTree.Clear;
@@ -983,12 +1130,12 @@ End;
 
 **)
 Procedure TfrmOTAIntfSearch.vstInterfacesGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode;
-  Column: TColumnIndex; Var LineBreakStyle: TVTTooltipLineBreakStyle; Var HintText: String);
+Column: TColumnIndex; Var LineBreakStyle: TVTTooltipLineBreakStyle; Var HintText: String);
 
 Var
   NodeData: PTreeData;
   ToolsAPIFile: IOISToolsAPIFile;
-  Methods : IOISInterfaceObjectMethods;
+  Methods: IOISInterfaceObjectMethods;
 
 Begin
   NodeData := Sender.GetNodeData(Node);
@@ -1008,7 +1155,7 @@ Begin
               Methods.Comment[NodeData.FMethodIndex];
           End;
         ltBorlandIDEServices: HintText :=
-          'BorlandIDEServices|Service := (BorlandIDEServices As IOTAXxxxxServices);';
+            'BorlandIDEServices|Service := (BorlandIDEServices As IOTAXxxxxServices);';
       End;
     End;
 End;
@@ -1029,11 +1176,11 @@ End;
 
 **)
 Procedure TfrmOTAIntfSearch.vstInterfacesGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode;
-  Kind: TVTImageKind; Column: TColumnIndex; Var Ghosted: Boolean; Var ImageIndex: Integer);
+Kind: TVTImageKind; Column: TColumnIndex; Var Ghosted: Boolean; Var ImageIndex: Integer);
 
 Var
   NodeData: PTreeData;
-  ToolsAPIFile : IOISToolsAPIFile;
+  ToolsAPIFile: IOISToolsAPIFile;
   strText: String;
 
 Begin
@@ -1067,8 +1214,9 @@ Begin
       Else
         ImageIndex := - 1;
       End
-    End Else
-      ImageIndex := - 1;
+    End
+  Else
+    ImageIndex := - 1;
 End;
 
 (**
@@ -1087,19 +1235,19 @@ End;
 
 **)
 Procedure TfrmOTAIntfSearch.vstInterfacesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-  Column: TColumnIndex; TextType: TVSTTextType; Var CellText: String);
+Column: TColumnIndex; TextType: TVSTTextType; Var CellText: String);
 
 Var
   NodeData: PTreeData;
   ToolsAPIFile: IOISToolsAPIFile;
-  strInterfaceIdent : String;
-  i : Integer;
+  strInterfaceIdent: String;
+  i: Integer;
 
 Begin
   NodeData := Sender.GetNodeData(Node);
   ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
   Case NodeData.FLeafType Of
-    ltType..High(TLeafType):
+    ltType .. High(TLeafType):
       strInterfaceIdent := GetCodeIdentifier(
         ToolsAPIFile.InterfaceObject[NodeData.FInterfaceObjectIndex], ltType);
   End;
@@ -1109,7 +1257,7 @@ Begin
         ltFile: CellText := ToolsAPIFile.FileName;
         ltType: CellText := ToolsAPIFile.InterfaceObject[NodeData.FInterfaceObjectIndex];
         ltFunction: CellText := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex]
-          .MethodProperty[NodeData.FMethodIndex];
+            .MethodProperty[NodeData.FMethodIndex];
         ltBorlandIDEServices: CellText := Format('(BorlandIDEServices As %s)', [strInterfaceIdent]);
         ltLoop: CellText := Format('(looping reference %s)', [strInterfaceIdent]);
         ltNotifier: CellText := Format('Implement the Notifier: %s', [strInterfaceIdent]);
@@ -1117,15 +1265,15 @@ Begin
           Begin
             For i := Low(strQueryInterfaces) To High(strQueryInterfaces) Do
               If CompareText(strQueryInterfaces[i, 1], strInterfaceIdent) = 0 Then
-              CellText := Format('%s.QueryInterface(%s, OutVariable)', [strQueryInterfaces[i, 2],
-                strInterfaceIdent]);
+                CellText := Format('%s.QueryInterface(%s, OutVariable)', [strQueryInterfaces[i, 2],
+                  strInterfaceIdent]);
           End;
       End;
     1:
       Case NodeData.FLeafType Of
         ltType: CellText := Format('%d', [ToolsAPIFile.LineNo[NodeData.FInterfaceObjectIndex]]);
         ltFunction: CellText := Format('%d', [
-          ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
+            ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
             LineNo[NodeData.FMethodIndex]]);
       Else
         CellText := '';
@@ -1166,8 +1314,8 @@ End;
 
 **)
 Procedure TfrmOTAIntfSearch.vstInterfacesPaintText(Sender: TBaseVirtualTree;
-  Const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType);
+Const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+TextType: TVSTTextType);
 
 Var
   NodeData: PTreeData;
@@ -1179,16 +1327,8 @@ Begin
   Case NodeData.FLeafType Of
     ltFile: TargetCanvas.Font.Style := [fsBold];
     ltType: TargetCanvas.Font.Color := clNavy;
-    ltBorlandIDEServices, ltNotifier, ltQueryInterface:
-      Begin
-        TargetCanvas.Font.Style := [fsBold];
-        TargetCanvas.Font.Color := clRed;
-      End;
-    ltLoop:
-      Begin
-        TargetCanvas.Font.Style := [fsItalic];
-        TargetCanvas.Font.Color := clPurple;
-      End;
+    ltBorlandIDEServices, ltNotifier, ltQueryInterface: TargetCanvas.Font.Color := clRed;
+    ltLoop: TargetCanvas.Font.Color := clPurple;
   End;
 End;
 

@@ -5,6 +5,7 @@ object frmProgress: TfrmProgress
   ClientHeight = 71
   ClientWidth = 392
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -26,8 +27,8 @@ object frmProgress: TfrmProgress
       AlignWithMargins = True
       Left = 7
       Top = 7
-      Width = 378
-      Height = 30
+      Width = 31
+      Height = 13
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -35,8 +36,6 @@ object frmProgress: TfrmProgress
       Align = alClient
       Caption = 'lblFiles'
       Layout = tlCenter
-      ExplicitWidth = 31
-      ExplicitHeight = 13
     end
     object pbrProgressBar: TProgressBar
       AlignWithMargins = True
