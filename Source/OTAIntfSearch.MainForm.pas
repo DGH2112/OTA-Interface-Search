@@ -986,7 +986,8 @@ Var
 
 Begin
   Try
-    RE := TRegEx.Create(RegExControl.Text, [roIgnoreCase, roCompiled, roSingleLine]);
+    If RegExControl.Text <> '' Then
+      RE := TRegEx.Create(RegExControl.Text, [roIgnoreCase, roCompiled, roSingleLine]);
     RegExControl.Font.Color := clWindowText;
     RegExControl.Color := clWindow;
   Except
