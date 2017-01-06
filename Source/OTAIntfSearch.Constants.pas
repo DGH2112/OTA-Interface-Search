@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    10 Dec 2016
+  @Date    06 Jan 2017
 
 **)
 Unit OTAIntfSearch.Constants;
@@ -13,9 +13,9 @@ Interface
 
 Const
   (** A regular expression for finding interface declarations. **)
-  strInterfaceRegEx             = '^( |\t)*I[a-z0-9]+ *= *interface.*[^;] *$';
+  strInterfaceRegEx             = '^\s*I\w*\s*=\s*\binterface\b';
   (** A regular expression for finding class declarations. **)
-  strClassRegEx                 = '^( |\t)*T[a-z0-9]+ *= *Class.*[^;] *$';
+  strClassRegEx                 = '^\s*T\w*\s*=\s*\bclass\b';
   (** A regular expression for finding procedure declarations **)
   strProcedureStartRegEx        = '^( |\t)*Procedure *';
   (** A regular expression for finding function declarations **)
