@@ -108,9 +108,9 @@ Begin
         pbrProgressBar.Style := pbstMarquee
       Else
         pbrProgressBar.Style := pbstNormal;
-      pbrProgressBar.Position := iPosition;
-      pbrProgressBar.Position := iPosition - 1;
-      pbrProgressBar.Position := iPosition;
+      pbrProgressBar.Position := iPosition;     // Workaround for stupid progress animation
+      pbrProgressBar.Position := iPosition - 1; //FI:W508
+      pbrProgressBar.Position := iPosition;     //FI:W508
       lblFiles.Caption := strFileName;
       FLastUpdate := GetTickCount;
       Application.ProcessMessages;

@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    06 Jan 2017
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.Constants;
@@ -45,11 +45,6 @@ Const
   strEndingSemiColonRegEx       = '.*; *$';
   (** A regular expression for finding functions and properties which return specific
       identifiers. **)
-  strInterfaceMethodSearchRegEx =
-    '^( |\t)*property *[a-z]+ *: *%s *read *.*; *|' +
-    '^( |\t)*property *[a-z]+ *[\[].*[\]] *: *%s *read *.*; *|' +
-    '^( |\t)*function *[a-z]+ *: *%s *; *|' +
-    '^( |\t)*function *[a-z]+ *[\(].*[\)] *: *%s *; *';
   (** A regular expression for checking an identifier for being a service interface. **)
   strServiceRegEx               = '^( |\t)*I[a-z]+Services[^0-9]*$';
   (** A regular expression for finding interface and class identifiers. **)
