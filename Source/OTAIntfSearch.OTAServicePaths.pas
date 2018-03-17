@@ -16,7 +16,8 @@ Uses
   OTAIntfSearch.Interfaces,
   Generics.Collections,
   Generics.Defaults,
-  VirtualTrees;
+  VirtualTrees, 
+  OTAIntfSearch.Types;
 
 Type
   (** A concrete implementation of the IOISOTAServicePath interface, **)
@@ -51,6 +52,9 @@ Type
 Implementation
 
 Uses
+  {$IFDEF DEBUG}
+  CodeSiteLogging,
+  {$ENDIF}
   SysUtils;
 
 (**
@@ -94,7 +98,7 @@ Begin
   While P <> Nil Do
     Begin
       Inc(recServicePath.FPathLength);
-      P := P.Parent;
+      P := FOTACodeTree.NodeParent[P];
     End;
   FServicePaths.Add(recServicePath);
 End;

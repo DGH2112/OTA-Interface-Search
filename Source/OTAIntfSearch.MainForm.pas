@@ -497,7 +497,7 @@ Begin
     Procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; Var Abort: Boolean)
     Var
       NodeData: PTreeData;
-      N: PVirtualNode;
+      ParentNode: PVirtualNode;
       strText: String;
       ToolsAPIFile: IOISToolsAPIFile;
     Begin
@@ -515,11 +515,11 @@ Begin
           If Sender.IsVisible[Node] Then
             Begin
               Inc(iVisible);
-              N := Sender.NodeParent[Node];
-              While N <> Nil Do
+              ParentNode := Sender.NodeParent[Node];
+              While ParentNode <> Nil Do
                 Begin
-                  Sender.IsVisible[N] := True;
-                  N := Sender.NodeParent[N];
+                  Sender.IsVisible[ParentNode] := True;
+                  ParentNode := Sender.NodeParent[ParentNode];
                 End;
             End;
         End
@@ -1249,7 +1249,7 @@ Const
   iClassIdx = 2;
   iProcedureIdx = 3;
   iFunctionIdx = 4;
-  iOtherIdx = 5;
+  iPropertyIdx = 5;
 
 Var
   NodeData: PTreeData;
@@ -1281,7 +1281,7 @@ Begin
             Else If FFunctionRegEx.IsMatch(strText) Then
               ImageIndex := iFunctionIdx
             Else
-              ImageIndex := iOtherIdx;
+              ImageIndex := iPropertyIdx;
           End;
         ltBorlandIDEServices: ImageIndex := 1;
       Else

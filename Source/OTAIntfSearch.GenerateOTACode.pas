@@ -575,7 +575,7 @@ Function TOISGenerateOTACode.IsService(Const ParentNode : PVirtualNode; Const st
 Var
   RegEx : TRegEx;
   M: TMatch;
-  P: Pointer;
+  P: PVirtualNode;
 
 Begin
   RegEx := TRegEx.Create(strServiceRegEx, [roIgnoreCase, roSingleLine]);
