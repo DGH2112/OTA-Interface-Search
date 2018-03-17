@@ -11,3 +11,4 @@
 *.stat
 OTAIntfSearchITHVerInfo.res
 *.~dsk
+*.eof

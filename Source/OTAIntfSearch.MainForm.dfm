@@ -4,7 +4,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
   Top = 0
   ActiveControl = edtFilter
   Caption = 'OTA Interface Search'
-  ClientHeight = 562
+  ClientHeight = 565
   ClientWidth = 784
   Color = clBtnFace
   Constraints.MinHeight = 600
@@ -27,7 +27,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Left = 3
     Top = 3
     Width = 778
-    Height = 534
+    Height = 537
     ActivePage = tabInterfaces
     Align = alClient
     ParentShowHint = False
@@ -36,13 +36,9 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabInterfaces: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Interfaces'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object splViews: TSplitter
         Left = 0
-        Top = 298
+        Top = 301
         Width = 764
         Height = 6
         Cursor = crVSplit
@@ -50,12 +46,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         AutoSnap = False
         MinSize = 200
         ResizeStyle = rsUpdate
-        ExplicitTop = 181
-        ExplicitWidth = 604
       end
       object pagViews: TPageControl
         Left = 0
-        Top = 304
+        Top = 307
         Width = 764
         Height = 193
         ActivePage = tabCreationPaths
@@ -66,18 +60,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         object tabCodeView: TTabSheet
           AlignWithMargins = True
           Caption = '&Code'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tabCreationPaths: TTabSheet
           AlignWithMargins = True
           Caption = 'Creation &Paths'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object splPaths: TSplitter
             Left = 0
             Top = 114
@@ -87,9 +73,6 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
             Align = alBottom
             AutoSnap = False
             ResizeStyle = rsUpdate
-            ExplicitLeft = 3
-            ExplicitTop = 108
-            ExplicitWidth = 584
           end
           object pnlPath: TPanel
             AlignWithMargins = True
@@ -105,8 +88,8 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
               AlignWithMargins = True
               Left = 5
               Top = 5
-              Width = 4
-              Height = 16
+              Width = 734
+              Height = 23
               Align = alClient
               Alignment = taCenter
               Layout = tlCenter
@@ -178,9 +161,6 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
           ShowHint = True
           TabOrder = 0
           OnChange = edtFilterChange
-          ExplicitLeft = 4
-          ExplicitTop = 4
-          ExplicitWidth = 372
         end
         object edtTargetSearch: TEdit
           AlignWithMargins = True
@@ -196,22 +176,17 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
           ShowHint = True
           TabOrder = 1
           OnChange = edtTargetSearchChange
-          ExplicitLeft = 382
-          ExplicitTop = 4
-          ExplicitWidth = 372
         end
         object lblInterfaceMethodFilter: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 376
-          Height = 16
+          Height = 19
           Align = alClient
           AutoSize = False
           Caption = '&Interface and Method Filter:'
           FocusControl = edtFilter
-          ExplicitTop = 17
-          ExplicitHeight = 22
         end
         object lblTargetSearchFilter: TLabel
           Left = 382
@@ -222,24 +197,16 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
           AutoSize = False
           Caption = '&Target Search Filter:'
           FocusControl = edtTargetSearch
-          ExplicitLeft = 554
-          ExplicitTop = 6
-          ExplicitWidth = 120
-          ExplicitHeight = 16
         end
       end
     end
     object tabToolsAPIFiles: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Files'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlButtons: TPanel
         AlignWithMargins = True
         Left = 3
-        Top = 464
+        Top = 467
         Width = 758
         Height = 30
         Align = alBottom
@@ -326,10 +293,11 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         Left = 3
         Top = 3
         Width = 758
-        Height = 455
+        Height = 458
         Align = alClient
         DragMode = dmAutomatic
         TabOrder = 1
+        OnClick = lbxFilesClick
         OnDblClick = btnEditClick
         OnDragDrop = lbxFilesDragDrop
         OnDragOver = lbxFilesDragOver
@@ -338,7 +306,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
   end
   object stbrStatusBar: TStatusBar
     Left = 0
-    Top = 540
+    Top = 543
     Width = 784
     Height = 22
     Font.Charset = DEFAULT_CHARSET
@@ -371,7 +339,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Left = 40
     Top = 88
     Bitmap = {
-      494C0101060008007C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010106000800800010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

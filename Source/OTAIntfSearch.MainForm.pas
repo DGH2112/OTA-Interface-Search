@@ -6,7 +6,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Dec 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.MainForm;
@@ -74,7 +74,6 @@ Type
     Procedure lbxFilesDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState;
       Var Accept: Boolean);
     Procedure lbxFilesDragDrop(Sender, Source: TObject; X, Y: Integer);
-    Procedure lvFilesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
     Procedure edtFilterChange(Sender: TObject);
     Procedure vstInterfacesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; Var CellText: String);
@@ -83,7 +82,7 @@ Type
     Procedure vstInterfacesPaintText(Sender: TBaseVirtualTree; Const TargetCanvas: TCanvas;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
     Procedure vstInterfacesGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Kind: TVTImageKind; Column: TColumnIndex; Var Ghosted: Boolean; Var ImageIndex: Integer);
+      Kind: TVTImageKind; Column: TColumnIndex; Var Ghosted: Boolean; Var ImageIndex: TImageIndex);
     Procedure vstInterfacesGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; Var LineBreakStyle: TVTTooltipLineBreakStyle; Var HintText: String);
     Procedure vstInterfacesKeyPress(Sender: TObject; Var Key: Char);
@@ -95,6 +94,7 @@ Type
     Procedure tmTimerEvent(Sender: TObject);
     Procedure pagViewsChange(Sender: TObject);
     procedure edtTargetSearchChange(Sender: TObject);
+    procedure lbxFilesClick(Sender: TObject);
   Strict Private
     Const
       (** a constant to define the time period after typing a reg ex search before the treeview is
@@ -515,7 +515,7 @@ Begin
   CreateDependencies;
   UpdateFormTitle;
   LoadSettings;
-  lvFilesSelectItem(Nil, Nil, False);
+  lbxFilesClick(Nil);
   pgcPageControl.ActivePage := tabInterfaces;
   If lbxFiles.Items.Count = 0 Then
     pgcPageControl.ActivePage := tabToolsAPIFiles;
@@ -634,6 +634,24 @@ End;
 
 (**
 
+  This is an on select item event handler for the files listbox.
+
+  @precon  None.
+  @postcon Updates the status of the Add, Edit and Delete buttons depending upon what is selected.
+
+  @param   Sender   as a TObject
+
+**)
+Procedure TfrmOTAIntfSearch.lbxFilesClick(Sender: TObject);
+
+Begin
+  btnAdd.Enabled := True;
+  btnEdit.Enabled := lbxFiles.ItemIndex > - 1;
+  btnDelete.Enabled := lbxFiles.ItemIndex > - 1;
+End;
+
+(**
+
   This is an on drag drop event handler for the files list view.
 
   @precon  None.
@@ -694,26 +712,6 @@ State: TDragState; Var Accept: Boolean);
 
 Begin
   Accept := (Sender = Source) And (Source = lbxFiles);
-End;
-
-(**
-
-  This is an on select item event handler for the files listbox.
-
-  @precon  None.
-  @postcon Updates the status of the Add, Edit and Delete buttons depending upon what is selected.
-
-  @param   Sender   as a TObject
-  @param   Item     as a TListItem
-  @param   Selected as a Boolean
-
-**)
-Procedure TfrmOTAIntfSearch.lvFilesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
-
-Begin
-  btnAdd.Enabled := True;
-  btnEdit.Enabled := lbxFiles.ItemIndex > - 1;
-  btnDelete.Enabled := lbxFiles.ItemIndex > - 1;
 End;
 
 (**
@@ -1173,11 +1171,11 @@ End;
   @param   Kind       as a TVTImageKind
   @param   Column     as a TColumnIndex
   @param   Ghosted    as a Boolean as a Reference
-  @param   ImageIndex as an Integer as a Reference
+  @param   ImageIndex as an TImageIndex as a Reference
 
 **)
 Procedure TfrmOTAIntfSearch.vstInterfacesGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode;
-Kind: TVTImageKind; Column: TColumnIndex; Var Ghosted: Boolean; Var ImageIndex: Integer);
+Kind: TVTImageKind; Column: TColumnIndex; Var Ghosted: Boolean; Var ImageIndex: TImageIndex);
 
 Var
   NodeData: PTreeData;
