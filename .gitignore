@@ -69,6 +69,5 @@ __recovery/
 # Project Specific
 *.~dsk
 *.eof
-*.ithelper
 *.ini
 OTAIntfSearchITHVerInfo.res

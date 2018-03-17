@@ -1,0 +1,33 @@
+[Setup]
+WarnBefore=0
+WarnAfter=0
+IncBuild=1
+CopyVersionInfoFrom=
+ExcludedResExts=.dcr
+EnabledVersionInfo=1
+IncludeInProject=1
+CompileWithBRCC32=0
+MajorVer=1
+MinorVer=1
+ReleaseVer=2
+BuildVer=572
+ResourceName=OTAIntfSearchITHVerInfo
+
+[Zipping]
+Enabled=1
+ZipFile=D:\Documents\Web Page\Zips\OTAIntfSearch-1.1b.zip
+BasePath=D:\Documents\RAD Studio\
+ExclusionFiles=
+
+[VersionInfo]
+CompanyName=Season's Fall Music
+FileDescription=OTAIntfSearch: An application to allow you to search interfaces / classes and method properties for matching text.
+FileVersion=1.1.2.572
+InternalName=OTAIntfSearch
+LegalCopyright=Season's Fall Music
+LegalTrademarks=Season's Fall Music
+OriginalFilename=OTAIntfSearch
+ProductName=OTAIntfSearch
+ProductVersion=1.1b
+Comments=OTAIntfSearch: An application to allow you to search interfaces / classes and method properties for matching text.
+
