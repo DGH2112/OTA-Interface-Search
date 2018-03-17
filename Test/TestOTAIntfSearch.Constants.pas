@@ -112,8 +112,8 @@ End;
 
 Procedure TTestOTAIntfSearchConstants.TestInterfaceClassSearchRegEx;
 
-Var
-  strSearch : String;
+//Var
+//  strSearch : String;
 
 Begin
 //  strSearch := Format(strInterfaceClassSearchRegEx, ['IMyOtherInterface']);
@@ -124,6 +124,13 @@ Begin
 End;
 
 Procedure TTestOTAIntfSearchConstants.TestInterfaceMethodSearchRegEx;
+
+Const
+  strInterfaceMethodSearchRegEx =
+    '^( |\t)*property *[a-z]+ *: *%s *read *.*; *|' +
+    '^( |\t)*property *[a-z]+ *[\[].*[\]] *: *%s *read *.*; *|' +
+    '^( |\t)*function *[a-z]+ *: *%s *; *|' +
+    '^( |\t)*function *[a-z]+ *[\(].*[\)] *: *%s *; *';
 
 Var
   strSearchText : String;

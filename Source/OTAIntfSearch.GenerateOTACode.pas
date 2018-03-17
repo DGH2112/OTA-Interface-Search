@@ -143,6 +143,8 @@ End;
   @precon  ParentNode must either be a valid node or Nil.
   @postcon A new node is added to the OTA Code tree view.
 
+  @nohint iFileIndex
+
   @param   ParentNode            as a Pointer as a constant
   @param   iFileIndex            as an Integer as a constant
   @param   iInterfaceObjectIndex as an Integer as a constant
@@ -151,7 +153,8 @@ End;
   @return  a Pointer
 
 **)
-Function TOISGenerateOTACode.AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
+Function TOISGenerateOTACode.AddNode(Const ParentNode: Pointer;
+  Const iFileIndex, iInterfaceObjectIndex,  //FI:O804
   iMethodIndex: Integer; Const LeafType: TLeafType) : Pointer;
 
 Var
@@ -446,13 +449,16 @@ End;
            FToolsAPIFile interfaces.
   @postcon If a duplicate is found a loop node is added under the parent and the functin returns true.
 
+  @nohint  strIdent
+  
   @param   ParentNode            as a PVirtualNode as a constant
   @param   strIdent              as a String as a constant
   @param   iInterfaceObjectIndex as an Integer as a constant
   @return  a Boolean
 
 **)
-Function TOISGenerateOTACode.IsDuplicate(Const ParentNode: PVirtualNode; Const strIdent: String;
+Function TOISGenerateOTACode.IsDuplicate(Const ParentNode: PVirtualNode;
+  Const strIdent: String; //FI:O804
   Const iInterfaceObjectIndex : Integer): Boolean;
 
 Var

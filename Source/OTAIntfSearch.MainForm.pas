@@ -615,16 +615,16 @@ Const
   strMsg = 'Exception in regular expression "%s":'#13#10'%s';
 
 Var
-  GenerateOTACode: IOISGenerateOTACode;
+  GenOTACode: IOISGenerateOTACode;
   C: Char;
 
 Begin
   If pagViews.ActivePage = tabCreationPaths Then
     Begin
-      GenerateOTACode := TOISGenerateOTACode.Create(FToolsAPIFiles, NodeData.FFileIndex,
+      GenOTACode := TOISGenerateOTACode.Create(FToolsAPIFiles, NodeData.FFileIndex,
         FOTACodeTree, FProgressManager);
       Try
-        GenerateOTACode.GenerateCode(NodeData.FInterfaceObjectIndex, NodeData.FMethodIndex,
+        GenOTACode.GenerateCode(NodeData.FInterfaceObjectIndex, NodeData.FMethodIndex,
           NodeData.FLeafType, edtTargetSearch.Text);
       Except
         On E: ERegularExpressionError Do
@@ -992,6 +992,11 @@ End;
 **)
 Procedure TfrmOTAIntfSearch.UpdateFormTitle;
 
+Type
+  TBuildRec = Record
+    FMajor, FMinor, FBugFix, FBuild: Word;
+  End;
+  
 Const
   strBuild = '%s %d.%d%s (Build %d.%d.%d.%d)';
   strBugFix = ' abcdefghijklmnopqrstuvwxyz';
@@ -1004,7 +1009,7 @@ Var
   VerValueSize: DWORD;
   VerValue: PVSFixedFileInfo;
   Dummy: DWORD;
-  iMajor, iMinor, iBugFix, iBuild: Word;
+  BuildRec : TBuildRec;
 
 Begin
   VerInfoSize := GetFileVersionInfoSize(PChar(ParamStr(0)), Dummy);
@@ -1013,12 +1018,20 @@ Begin
       GetMem(VerInfo, VerInfoSize);
       GetFileVersionInfo(PChar(ParamStr(0)), 0, VerInfoSize, VerInfo);
       VerQueryValue(VerInfo, '\', Pointer(VerValue), VerValueSize);
-      iMajor := VerValue^.dwFileVersionMS Shr iRightShift;
-      iMinor := VerValue^.dwFileVersionMS And iMask;
-      iBugFix := VerValue^.dwFileVersionLS Shr iRightShift;
-      iBuild := VerValue^.dwFileVersionLS And iMask;
-      Caption := Format(strBuild, [Application.Title, iMajor, iMinor, strBugFix[Succ(iBugFix)],
-        iMajor, iMinor, iBugFix, iBuild]);
+      BuildRec.FMajor := VerValue^.dwFileVersionMS Shr iRightShift;
+      BuildRec.FMinor := VerValue^.dwFileVersionMS And iMask;
+      BuildRec.FBugFix := VerValue^.dwFileVersionLS Shr iRightShift;
+      BuildRec.FBuild := VerValue^.dwFileVersionLS And iMask;
+      Caption := Format(strBuild, [
+        Application.Title,
+        BuildRec.FMajor,
+        BuildRec.FMinor,
+        strBugFix[Succ(BuildRec.FBugFix)],
+        BuildRec.FMajor,
+        BuildRec.FMinor,
+        BuildRec.FBugFix,
+        BuildRec.FBuild
+      ]);
       FreeMem(VerInfo, VerInfoSize);
     End;
 End;
