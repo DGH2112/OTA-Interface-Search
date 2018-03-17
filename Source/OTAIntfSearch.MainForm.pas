@@ -102,24 +102,25 @@ Type
           filtered. **)
       iUpdateDelayInterval = 500;
   Strict Private
-    FIniFile           : IOISINIFile;
-    FToolsAPIFiles     : IOISToolsAPIFiles;
-    FUIUpdater         : IOISInterfacesUIUpdater;
-    FFileParser        : IOISFileParser;
-    FProgressManager   : IOISProgressManager;
-    FInterfacesTree    : TVirtualStringTree;
-    FOTACodeTree       : TVirtualStringTree;
-    FFiltering         : Boolean;
-    FTargeting         : Boolean;
-    FSearchRegEx       : TRegEx;
-    FTargetSearchRegEx : TRegEx;
-    FInterfaceRegEx    : TRegEx;
-    FProcedureRegEx    : TRegEx;
-    FFunctionRegEx     : TRegEx;
-    FPropertyRegEx     : TRegEx;
-    FCodeView          : TSynEdit;
-    FSearchLastEdited  : Int64;
-    FTargetLastEdited  : Int64;
+    FIniFile                     : IOISINIFile;
+    FToolsAPIFiles               : IOISToolsAPIFiles;
+    FUIUpdater                   : IOISInterfacesUIUpdater;
+    FFileParser                  : IOISFileParser;
+    FProgressManager             : IOISProgressManager;
+    FInterfacesTree              : TVirtualStringTree;
+    FOTACodeTree                 : TVirtualStringTree;
+    FFiltering                   : Boolean;
+    FTargeting                   : Boolean;
+    FSearchRegEx                 : TRegEx;
+    FTargetSearchRegEx           : TRegEx;
+    FInterfaceRegEx              : TRegEx;
+    FProcedureRegEx              : TRegEx;
+    FFunctionRegEx               : TRegEx;
+    FPropertyRegEx               : TRegEx;
+    FCodeView                    : TSynEdit;
+    FSearchLastEdited            : Int64;
+    FTargetLastEdited            : Int64;
+    FHasDoneInitialParseAndFilter: Boolean;
   private
     procedure ParseTargetSearch;
   Strict Protected
@@ -496,7 +497,7 @@ Begin
     Procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; Var Abort: Boolean)
     Var
       NodeData: PTreeData;
-      P: PVirtualNode;
+      N: PVirtualNode;
       strText: String;
       ToolsAPIFile: IOISToolsAPIFile;
     Begin
@@ -514,11 +515,11 @@ Begin
           If Sender.IsVisible[Node] Then
             Begin
               Inc(iVisible);
-              P := Sender.NodeParent[Node];
-              While P <> Nil Do
+              N := Sender.NodeParent[Node];
+              While N <> Nil Do
                 Begin
-                  Sender.IsVisible[P] := True;
-                  P := Sender.NodeParent[P];
+                  Sender.IsVisible[N] := True;
+                  N := Sender.NodeParent[N];
                 End;
             End;
         End
@@ -594,7 +595,7 @@ End;
 Procedure TfrmOTAIntfSearch.FormShow(Sender: TObject);
 
 Begin
-  ParseFilesAndFilter;
+  FHasDoneInitialParseAndFilter := False;
   tmTimer.Enabled := True;
 End;
 
@@ -960,6 +961,11 @@ Procedure TfrmOTAIntfSearch.tmTimerEvent(Sender: TObject);
 Begin
   tmTimer.Enabled := False;
   Try
+    If Not FHasDoneInitialParseAndFilter Then
+      Begin
+        ParseFilesAndFilter;
+        FHasDoneInitialParseAndFilter := True;
+      End;
     If (FSearchLastEdited <> 0) And (GetTickCount > FSearchLastEdited + iUpdateDelayInterval) Then
       Begin
         FilterChanged;

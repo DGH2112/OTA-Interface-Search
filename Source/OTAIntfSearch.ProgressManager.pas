@@ -38,6 +38,7 @@ Type
     FStages       : Integer;
     FStageRecords : TList<TStage>;
     FProgressForm : TfrmProgress;
+    FTaskBar      : TTaskbar;
   Strict Protected
     Procedure Hide;
     Procedure RegisterStages(Const iStages: Integer);
@@ -51,7 +52,8 @@ Type
 Implementation
 
 Uses
-  SysUtils;
+  System.SysUtils,
+  System.Win.TaskbarCore;
 
 (**
 
@@ -67,7 +69,7 @@ Uses
 Constructor TOISProgressManager.Create(Const MainForm : TForm; Const Taskbar : TTaskbar);
 
 Begin
-  //: @bug Does not update taskbar. Why???
+  FTaskBar := Taskbar;
   FStages := 0;
   FStageRecords := TList<TStage>.Create;
   FProgressForm := TfrmProgress.Create(MainForm);
@@ -100,6 +102,7 @@ End;
 Procedure TOISProgressManager.Hide;
 
 Begin
+  FTaskBar.ProgressState := TTaskBarProgressState.None;
   FProgressForm.HideProgress;
 End;
 
@@ -150,6 +153,9 @@ Begin
   FStageRecords[iStage] := recStage;
   iStageLength := iTotalLength Div FStages;
   iPosition := iStageLength * (iStage - 1);
+  FTaskBar.ProgressValue := iPosition;
+  FTaskBar.ProgressMaxValue := iTotalLength;
+  FTaskBar.ProgressState := TTaskBarProgressState.Normal;
   FProgressForm.UpdateProgress(iPosition, iTotalLength, '');
   FProgressForm.ShowProgress(iTotal);
 End;
@@ -180,6 +186,8 @@ Begin
   iStageLength := iTotalLength Div FStages;
   iProgressPosition := iStageLength * (iStage - 1) +
     Trunc(iStageLength * Int(iPosition) / Int(recStage.FTotal));
+  FTaskBar.ProgressValue := iProgressPosition;
+  FTaskBar.ProgressMaxValue := iTotalLength;
   FProgressForm.UpdateProgress(iProgressPosition, iTotalLength, strFileName);
 End;
 

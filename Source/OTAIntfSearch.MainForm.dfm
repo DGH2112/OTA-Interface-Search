@@ -88,8 +88,8 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
               AlignWithMargins = True
               Left = 5
               Top = 5
-              Width = 4
-              Height = 16
+              Width = 734
+              Height = 23
               Align = alClient
               Alignment = taCenter
               Layout = tlCenter
@@ -339,7 +339,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Left = 40
     Top = 88
     Bitmap = {
-      494C010106000800880010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101060008008C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -612,9 +612,8 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
   end
   object tbrTaskbar: TTaskbar
     TaskBarButtons = <>
-    ProgressState = Error
     ProgressMaxValue = 10000000
-    ProgressValue = 500000
+    ProgressValue = 5000000
     TabProperties = [AppThumbAlways]
     Left = 40
     Top = 144
