@@ -172,7 +172,7 @@ Begin
         NodeData.FTargetSearch := tsrFound;
         // Mark path to node as found
         P := FOTACodeTree.NodeParent[Result];
-        While P <> Nil Do
+        While Assigned(Nil) Do
           Begin
             NodeData := FOTACodeTree.GetNodeData(P);
             NodeData.FTargetSearch := tsrFound;
@@ -351,7 +351,7 @@ Begin
         HideNonTargettedNodes(N);
       FOISTargetSearchPaths.SortServicePaths;
       N := FOISTargetSearchPaths.ShortestServicePath;
-      If N <> Nil Then
+      If Assigned(N) Then
         Begin
           FOTACodeTree.VisiblePath[N] := True;
           FOTACodeTree.FocusedNode := N;
@@ -404,7 +404,7 @@ End;
 Procedure TOISGenerateOTACode.HideNonTargettedNodes(Const StartingNode : PVirtualNode);
 
 Begin
-  If StartingNode <> Nil Then
+  If Assigned(StartingNode) Then
     FOTACodeTree.IterateSubtree(
       StartingNode,
       Procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer;
@@ -426,7 +426,7 @@ Begin
         If Sender.IsVisible[Node] Then
           Begin
             N := Sender.NodeParent[Node];
-            While N <> Nil Do
+            While Assigned(N) Do
               Begin
                 Sender.IsVisible[N] := True;
                 N := Sender.NodeParent[N];
@@ -462,7 +462,7 @@ Var
 Begin
   Result := False;
   P := FOTACodeTree.NodeParent[ParentNode];
-  While P <> Nil Do
+  While Assigned(P) Do
     Begin
       NodeData := FOTACodeTree.GetNodeData(P);
       If (iInterfaceObjectIndex = NodeData.FInterfaceObjectIndex) And

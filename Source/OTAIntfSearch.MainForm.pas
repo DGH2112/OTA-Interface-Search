@@ -448,7 +448,7 @@ Begin
     FInterfacesTree.BeginUpdate;
     Try
       N := FInterfacesTree.RootNode.FirstChild;
-      While N <> Nil Do
+      While Assigned(N) Do
         Begin
           iVisible := FilterInterfaceTreeView(N);
           FInterfacesTree.IsVisible[N] := Not FFiltering Or (iVisible > 0);
@@ -516,7 +516,7 @@ Begin
             Begin
               Inc(iVisible);
               ParentNode := Sender.NodeParent[Node];
-              While ParentNode <> Nil Do
+              While Assigned(ParentNode) Do
                 Begin
                   Sender.IsVisible[ParentNode] := True;
                   ParentNode := Sender.NodeParent[ParentNode];
@@ -775,7 +775,7 @@ Var
 Begin
   lblPath.Caption := '';
   N := FOTACodeTree.FocusedNode;
-  While N <> Nil Do
+  While Assigned(N) Do
     Begin
       If lblPath.Caption <> '' Then
         lblPath.Caption := lblPath.Caption + ' > ';
@@ -820,7 +820,7 @@ Var
   NodeData: PTreeData;
 
 Begin
-  If (FInterfacesTree.FocusedNode <> Nil) And (pagViews.ActivePage = tabCreationPaths) Then
+  If Assigned(FInterfacesTree.FocusedNode) And (pagViews.ActivePage = tabCreationPaths) Then
     Begin
       NodeData := FInterfacesTree.GetNodeData(FInterfacesTree.FocusedNode);
       GenerateOTACode(NodeData);
@@ -1147,7 +1147,7 @@ Var
   ToolsAPIFile: IOISToolsAPIFile;
 
 Begin
-  If FInterfacesTree.FocusedNode <> Nil Then
+  If Assigned(FInterfacesTree.FocusedNode) Then
     Begin
       NodeData := FInterfacesTree.GetNodeData(FInterfacesTree.FocusedNode);
       ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];

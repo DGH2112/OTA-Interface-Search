@@ -95,7 +95,7 @@ Begin
   recServicePath.FServicePath := TreeNode;
   recServicePath.FPathLength := 0;
   P := TreeNode;
-  While P <> Nil Do
+  While Assigned(P) Do
     Begin
       Inc(recServicePath.FPathLength);
       P := FOTACodeTree.NodeParent[P];
