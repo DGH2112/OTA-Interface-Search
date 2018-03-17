@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{D91902D3-7644-4223-9F2A-8E24E10C7546}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Test\OTAIntfSearchTests.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="OTAIntfSearch.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="OTAIntfSearchTests">
+        <MSBuild Projects="Test\OTAIntfSearchTests.dproj"/>
+    </Target>
+    <Target Name="OTAIntfSearchTests:Clean">
+        <MSBuild Projects="Test\OTAIntfSearchTests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="OTAIntfSearchTests:Make">
+        <MSBuild Projects="Test\OTAIntfSearchTests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="OTAIntfSearch">
+        <MSBuild Projects="OTAIntfSearch.dproj"/>
+    </Target>
+    <Target Name="OTAIntfSearch:Clean">
+        <MSBuild Projects="OTAIntfSearch.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="OTAIntfSearch:Make">
+        <MSBuild Projects="OTAIntfSearch.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="OTAIntfSearchTests;OTAIntfSearch"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="OTAIntfSearchTests:Clean;OTAIntfSearch:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="OTAIntfSearchTests:Make;OTAIntfSearch:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

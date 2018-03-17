@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Dec 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.OTAServicePaths;
@@ -16,7 +16,8 @@ Uses
   OTAIntfSearch.Interfaces,
   Generics.Collections,
   Generics.Defaults,
-  VirtualTrees;
+  VirtualTrees, 
+  OTAIntfSearch.Types;
 
 Type
   (** A concrete implementation of the IOISOTAServicePath interface, **)
@@ -40,20 +41,21 @@ Type
     FOTACodeTree  : TVirtualStringTree;
     FComparer     : TTargetSearchPathComparer;
   Strict Protected
-    Procedure AddServicePath(TreeNode: Pointer);
+    Procedure AddServicePath(Const TreeNode: Pointer);
     Function  ShortestServicePath: Pointer;
     Procedure SortServicePaths;
   Public
-    Constructor Create(vstOTACodeTree : TVirtualStringTree);
+    Constructor Create(Const vstOTACodeTree : TVirtualStringTree);
     Destructor Destroy; Override;
   End;
 
 Implementation
 
 Uses
+  {$IFDEF DEBUG}
+  CodeSiteLogging,
+  {$ENDIF}
   SysUtils;
-
-{ TOISOTAServicePaths.TServicePathComparer }
 
 (**
 
@@ -73,8 +75,6 @@ Begin
   Result := Left.FPathLength - Right.FPathLength;
 End;
 
-{ TOISOTAServicePaths }
-
 (**
 
   This mehod adds a service path pointer and path length to the collection.
@@ -82,10 +82,10 @@ End;
   @precon  TreeNode must be a valid PVirtualNode pointer.
   @postcon Adds a service path and length to the end of the collection.
 
-  @param   TreeNode as a Pointer
+  @param   TreeNode as a Pointer as a constant
 
 **)
-Procedure TOISOTATargetSearchPaths.AddServicePath(TreeNode: Pointer);
+Procedure TOISOTATargetSearchPaths.AddServicePath(Const TreeNode: Pointer);
 
 Var
   P : PVirtualNode;
@@ -95,10 +95,10 @@ Begin
   recServicePath.FServicePath := TreeNode;
   recServicePath.FPathLength := 0;
   P := TreeNode;
-  While P <> Nil Do
+  While Assigned(P) Do
     Begin
       Inc(recServicePath.FPathLength);
-      P := P.Parent;
+      P := FOTACodeTree.NodeParent[P];
     End;
   FServicePaths.Add(recServicePath);
 End;
@@ -110,10 +110,10 @@ End;
   @precon  vstOTACodeTree must be a valid instance.
   @postcon Creates an empty collection.
 
-  @param   vstOTACodeTree as a TVirtualStringTree
+  @param   vstOTACodeTree as a TVirtualStringTree as a constant
 
 **)
-Constructor TOISOTATargetSearchPaths.Create(vstOTACodeTree: TVirtualStringTree);
+Constructor TOISOTATargetSearchPaths.Create(Const vstOTACodeTree: TVirtualStringTree);
 
 Begin
   FComparer := TTargetSearchPathComparer.Create;

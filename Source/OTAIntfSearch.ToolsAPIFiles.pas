@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.ToolsAPIFiles;
@@ -31,8 +31,8 @@ Type
   Strict Protected
     // IOTAIntfSearchToolsAPIFile
     Function  GetFileCount: Integer;
-    Function  GetToolsAPIFile(iFileIndex : integer) : IOISToolsAPIFile;
-    Function  AddFile(strFileName: String): Integer;
+    Function  GetToolsAPIFile(Const iFileIndex : integer) : IOISToolsAPIFile;
+    Function  AddFile(Const strFileName: String): Integer;
     Procedure Clear;
   Public
     Constructor Create;
@@ -40,8 +40,6 @@ Type
   End;
 
 Implementation
-
-{ TToolsAPIFiles }
 
 Uses
   OTAIntfSearch.ToolsAPIFile;
@@ -53,11 +51,11 @@ Uses
   @precon  strFileName must be a valid pascal file.
   @postcon The file is added to the collection.
 
-  @param   strFileName as a String
-  @return  a integer
+  @param   strFileName as a String as a constant
+  @return  an Integer
 
 **)
-Function TOISToolsAPIFiles.AddFile(strFileName: String): Integer;
+Function TOISToolsAPIFiles.AddFile(Const strFileName: String): Integer;
 
 Var
   recFileRecord : TFileRecord;
@@ -133,11 +131,11 @@ End;
   @precon  iFileIndex must be a valid index between zero and FileCount - 1.
   @postcon Returns an IOISToolsAPIFile reference for the indexed item.
 
-  @param   iFileIndex as an Integer
+  @param   iFileIndex as an integer as a constant
   @return  an IOISToolsAPIFile
 
 **)
-Function TOISToolsAPIFiles.GetToolsAPIFile(iFileIndex : integer): IOISToolsAPIFile;
+Function TOISToolsAPIFiles.GetToolsAPIFile(Const iFileIndex : integer): IOISToolsAPIFile;
 
 Begin
   Result := FFiles[iFileIndex].FToolsAPIFile;

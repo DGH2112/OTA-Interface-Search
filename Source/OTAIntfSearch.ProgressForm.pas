@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    16 Dec 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.ProgressForm;
@@ -43,16 +43,14 @@ Type
   Strict Protected
   Public
     { Public declarations }
-    Procedure ShowProgress(iTotal : Integer);
-    Procedure UpdateProgress(iPosition, iTotal : integer; strFileName : String);
+    Procedure ShowProgress(Const iTotal : Integer);
+    Procedure UpdateProgress(Const iPosition, iTotal : Integer; Const strFileName : String);
     Procedure HideProgress;
   End;
 
 Implementation
 
 {$R *.dfm}
-
-{ TfrmProgress }
 
 (**
 
@@ -75,14 +73,16 @@ End;
   @precon  None.
   @postcon The form is initialised.
 
-  @param   iTotal as an Integer
+  @param   iTotal as an Integer as a constant
 
 **)
-Procedure TfrmProgress.ShowProgress(iTotal: Integer);
+Procedure TfrmProgress.ShowProgress(Const iTotal: Integer);
 
 Begin
   If Not Visible Then
     Show;
+  pbrProgressBar.Position := 0;
+  pbrProgressBar.Max := iTotal;
   pbrProgressBar.Style := pbstMarquee;
 End;
 
@@ -93,12 +93,12 @@ End;
   @precon  None.
   @postcon The forms progress is updated.
 
-  @param   iPosition   as an integer
-  @param   iTotal      as an integer
-  @param   strFileName as a String
+  @param   iPosition   as an Integer as a constant
+  @param   iTotal      as an Integer as a constant
+  @param   strFileName as a String as a constant
 
 **)
-Procedure TfrmProgress.UpdateProgress(iPosition, iTotal: integer; strFileName : String);
+Procedure TfrmProgress.UpdateProgress(Const iPosition, iTotal: Integer; Const strFileName : String);
 
 Begin
   If GetTickCount > FLastUpdate + iUpdateInterval Then
@@ -108,9 +108,9 @@ Begin
         pbrProgressBar.Style := pbstMarquee
       Else
         pbrProgressBar.Style := pbstNormal;
-      pbrProgressBar.Position := iPosition;
-      pbrProgressBar.Position := iPosition - 1;
-      pbrProgressBar.Position := iPosition;
+      pbrProgressBar.Position := iPosition;     // Workaround for stupid progress animation
+      pbrProgressBar.Position := iPosition - 1; //FI:W508
+      pbrProgressBar.Position := iPosition;     //FI:W508
       lblFiles.Caption := strFileName;
       FLastUpdate := GetTickCount;
       Application.ProcessMessages;

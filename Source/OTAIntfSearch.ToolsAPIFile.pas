@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    18 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.ToolsAPIFile;
@@ -36,13 +36,13 @@ Type
     // IOTAIntfSearchToolsAPIFile
     Function  GetFileName : String;
     Function  GetInterfaceObjectCount : Integer;
-    Function  GetInterfaceObject(iIndex : Integer) : String;
-    Function  AddLine(strLine, strComment : String; iLineNo : Integer) : Integer;
-    Function  GetComment(iIndex : Integer) : String;
-    Function  GetLineNo(iIndex: Integer): Integer;
-    Function  GetInterfaceObjectMethods(iIndex: Integer): IOISInterfaceObjectMethods;
+    Function  GetInterfaceObject(Const iIndex : Integer) : String;
+    Function  AddLine(Const strLine, strComment : String; Const iLineNo : Integer) : Integer;
+    Function  GetComment(Const iIndex : Integer) : String;
+    Function  GetLineNo(Const iIndex: Integer): Integer;
+    Function  GetInterfaceObjectMethods(Const iIndex: Integer): IOISInterfaceObjectMethods;
   Public
-    Constructor Create(strFileName : String);
+    Constructor Create(Const strFileName : String);
     Destructor Destroy; Override;
   End;
 
@@ -59,13 +59,13 @@ Uses
   @precon  None.
   @postcon The line of code, comment and line number are stored at the end of the collection.
 
-  @param   strLine    as a String
-  @param   strComment as a String
-  @param   iLineNo    as an Integer
+  @param   strLine    as a String as a constant
+  @param   strComment as a String as a constant
+  @param   iLineNo    as an Integer as a constant
   @return  an Integer
 
 **)
-Function TOISToolsAPIFile.AddLine(strLine, strComment : String; iLineNo : Integer) : Integer;
+Function TOISToolsAPIFile.AddLine(Const strLine, strComment : String; Const iLineNo : Integer) : Integer;
 
 Var
   recLineRecord : TLineRecord;
@@ -85,10 +85,10 @@ End;
   @precon  None.
   @postcon Creates an empty internal collection for storing the lines or code and their information.
 
-  @param   strFileName as a String
+  @param   strFileName as a String as a constant
 
 **)
-Constructor TOISToolsAPIFile.Create(strFileName : String);
+Constructor TOISToolsAPIFile.Create(Const strFileName : String);
 
 Begin
   FFileName := strFileName;
@@ -117,11 +117,11 @@ End;
   @precon  iIndex must be a valid index between zero and LineCount - 1.
   @postcon Returns the comment associated with the indexed line of code.
 
-  @param   iIndex as an Integer
+  @param   iIndex as an Integer as a constant
   @return  a String
 
 **)
-Function TOISToolsAPIFile.GetComment(iIndex: Integer): String;
+Function TOISToolsAPIFile.GetComment(Const iIndex: Integer): String;
 
 Begin
   Result := FLines[iIndex].FComment;
@@ -145,6 +145,23 @@ End;
 
 (**
 
+  This method is a getter method for the LineText property of the IOISToolsAPIFile interface.
+
+  @precon  iIndex must be a valid index between zero and LineCount - 1.
+  @postcon Returns the code for the indexed line in the collection.
+
+  @param   iIndex as an Integer as a constant
+  @return  a String
+
+**)
+Function TOISToolsAPIFile.GetInterfaceObject(Const iIndex: Integer): String;
+
+Begin
+  Result := FLines[iIndex].FText;
+End;
+
+(**
+
   This is a getter method for the LineCount property of the IOISToolsAPIFile interface.
 
   @precon  None.
@@ -161,33 +178,16 @@ End;
 
 (**
 
-  This method is a getter method for the LineText property of the IOISToolsAPIFile interface.
-
-  @precon  iIndex must be a valid index between zero and LineCount - 1.
-  @postcon Returns the code for the indexed line in the collection.
-
-  @param   iIndex as an Integer
-  @return  a String
-
-**)
-Function TOISToolsAPIFile.GetInterfaceObject(iIndex: Integer): String;
-
-Begin
-  Result := FLines[iIndex].FText;
-End;
-
-(**
-
   This is a getter method for the InterfaceObjectMethods property.
 
   @precon  iIndex must be a valid index.
-  @postcon Returns  reference to the indexed InterfaceObjectMethods implementation.
+  @postcon Returns reference to the indexed InterfaceObjectMethods implementation.
 
-  @param   iIndex as an Integer
+  @param   iIndex as an Integer as a constant
   @return  an IOISInterfaceObjectMethods
 
 **)
-Function TOISToolsAPIFile.GetInterfaceObjectMethods(iIndex: Integer): IOISInterfaceObjectMethods;
+Function TOISToolsAPIFile.GetInterfaceObjectMethods(Const iIndex: Integer): IOISInterfaceObjectMethods;
 
 Begin
   Result := FLines[iIndex].FMethods;
@@ -200,11 +200,11 @@ End;
   @precon  iIndex must be a valid index between zero and LineCount - 1.
   @postcon Returns the line number of the code in the pascal file for the indexed item.
 
-  @param   iIndex as an Integer
+  @param   iIndex as an Integer as a constant
   @return  an Integer
 
 **)
-Function TOISToolsAPIFile.GetLineNo(iIndex: Integer): Integer;
+Function TOISToolsAPIFile.GetLineNo(Const iIndex: Integer): Integer;
 
 Begin
   Result := FLines[iIndex].FLineNo;

@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    20 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.CustomHintWindow;
@@ -72,6 +72,9 @@ Uses
   @postcon The returned value is the size of the hin required (also stored in FRect along with the
            hint title and comment in FHintTitle and FHintComment.
 
+  @nocheck MissingCONSTInParam
+  @nohint  MaxWidth
+  
   @param   MaxWidth as an Integer
   @param   AHint    as a String as a Constant
   @param   AData    as a TCustomData
@@ -79,6 +82,9 @@ Uses
 
 **)
 Function TOISHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: string;  AData: TCustomData): TRect;
+
+Const
+  iMultiplier = 2;
 
 Var
   iHeight : Integer;
@@ -95,7 +101,7 @@ Begin
       FHintComment := astrHint[1];
     End;
   Canvas.Font.Style := [fsBold];
-  Result.Right := Result.Left + Canvas.TextWidth(FHintTitle) + iPadding * 2;
+  Result.Right := Result.Left + Canvas.TextWidth(FHintTitle) + iPadding * iMultiplier;
   If Result.Right - Result.Left > iMaxWidth Then
     Result.Right := Result.Left + iMaxWidth;
   If Result.Right - Result.Left < iMinWidth Then
@@ -103,7 +109,7 @@ Begin
   Result.Bottom := Result.Top + iPadding;
   FRect := Result;
   iHeight := DrawText(Canvas.Handle, FHintTitle, Length(FHintTitle), FRect, DT_CALCRECT Or iDrawingOptions);
-  Result.Bottom := Result.Bottom + iHeight + iPadding * 2;
+  Result.Bottom := Result.Bottom + iHeight + iPadding * iMultiplier;
   Canvas.Font.Style := [];
   FRect := Result;
   iHeight := DrawText(Canvas.Handle, FHintComment, Length(FHintComment), FRect, DT_CALCRECT Or iDrawingOptions);
@@ -118,15 +124,21 @@ End;
   @precon  None.
   @postcon Sets the font name and size for the hint window.
 
+  @nocheck MissingCONSTInParam
+  
   @param   AOwner as a TComponent
 
 **)
 Constructor TOISHintWindow.Create(AOwner : TComponent);
 
+Const
+  iFontSize = 10;
+  strFontName = 'Tahoma';
+
 Begin
   Inherited Create(AOwner);
-  Canvas.Font.Name := 'Tahoma';
-  Canvas.Font.Size := 10;
+  Canvas.Font.Name := strFontName;
+  Canvas.Font.Size := iFontSize;
 End;
 
 (**

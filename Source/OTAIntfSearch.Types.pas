@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Dec 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.Types;
@@ -26,10 +26,10 @@ Type
   (** This is an enumerate to define the purpose of the applications statusbar panels along
       with their indexes. **)
   TStatusPanelPositions = (
-    sppSearchPaths = 0,
-    sppFiles       = 1,
-    sppMatches     = 2,
-    sppRegExMsg    = 3
+    sppSearchPaths,
+    sppFiles,
+    sppMatches,
+    sppRegExMsg
   );
 
   (** An enumerate to define whether the target search has found a matching result in a node or
