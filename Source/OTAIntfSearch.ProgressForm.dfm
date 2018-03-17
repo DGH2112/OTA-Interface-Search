@@ -27,8 +27,8 @@ object frmProgress: TfrmProgress
       AlignWithMargins = True
       Left = 7
       Top = 7
-      Width = 31
-      Height = 13
+      Width = 378
+      Height = 30
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5

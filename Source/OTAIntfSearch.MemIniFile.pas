@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    13 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.MemIniFile;
@@ -27,12 +27,12 @@ Type
   Strict Protected
     Procedure BuildIniFile;
     //IOTAIntfSearchIniFile
-    Function  ReadInteger(const strSection, strIdent: String; iDefault: Integer) : Integer;
-    Procedure WriteInteger(const strSection, strIdent: String; iValue: Integer);
-    Function  ReadString(const strSection, strIdent, strDefault: String) : String;
-    Procedure WriteString(const strSection, strIdent, strValue: String);
-    Procedure EraseSection(strSection : String);
-    Procedure ReadSection(strSection : String; slIdents : TStringList);
+    Function  ReadInteger(Const strSection, strIdent: String; Const iDefault: Integer) : Integer;
+    Procedure WriteInteger(Const strSection, strIdent: String; Const iValue: Integer);
+    Function  ReadString(Const strSection, strIdent, strDefault: String) : String;
+    Procedure WriteString(Const strSection, strIdent, strValue: String);
+    Procedure EraseSection(Const strSection : String);
+    Procedure ReadSection(Const strSection : String; Const slIdents : TStringList);
     Procedure UpdateFile;
   Public
     Constructor Create;
@@ -56,6 +56,10 @@ Uses
 **)
 Procedure TOISMemIniFile.BuildIniFile;
 
+Const
+  strSeasonFall = '\Season''s Fall\';
+  strINIFilePattern = '%s Settings.INI';
+
 Var
   strModuleName : String;
   iSize : Integer;
@@ -65,12 +69,12 @@ Begin
   iSize := GetModuleFileName(hInstance, PChar(strModuleName), MAX_PATH);
   SetLength(strModuleName, iSize);
   FINIFileName := ChangeFileExt(ExtractFileName(strModuleName), '');
-  FINIFileName :=  Format('%s Settings.INI', [FIniFileName]);
+  FINIFileName :=  Format(strINIFilePattern, [FIniFileName]);
   SetLength(strModuleName, MAX_PATH);
   SHGetFolderPath(0, CSIDL_APPDATA Or CSIDL_FLAG_CREATE, 0, SHGFP_TYPE_CURRENT,
     PChar(strModuleName));
   strModuleName := StrPas(PChar(strModuleName));
-  strModuleName := strModuleName + '\Season''s Fall\';
+  strModuleName := strModuleName + strSeasonFall;
   If Not DirectoryExists(strModuleName) Then
     ForceDirectories(strModuleName);
   FINIFileName := strModuleName + FINIFileName;
@@ -114,10 +118,10 @@ End;
   @precon  None.
   @postcon The named section if found is erased.
 
-  @param   strSection as a String
+  @param   strSection as a String as a constant
 
 **)
-Procedure TOISMemIniFile.EraseSection(strSection : String);
+Procedure TOISMemIniFile.EraseSection(Const strSection : String);
 
 Begin
   FMemIniFile.EraseSection(strSection);
@@ -132,11 +136,12 @@ End;
 
   @param   strSection as a String as a constant
   @param   strIdent   as a String as a constant
-  @param   iDefault   as an Integer
+  @param   iDefault   as an Integer as a constant
   @return  an Integer
 
 **)
-Function TOISMemIniFile.ReadInteger(const strSection, strIdent: String; iDefault : Integer) : Integer;
+Function TOISMemIniFile.ReadInteger(Const strSection, strIdent: String;
+  Const iDefault : Integer) : Integer;
 
 Begin
   Result := FMemIniFile.ReadInteger(strSection, strIdent, iDefault);
@@ -149,11 +154,11 @@ End;
   @precon  None.
   @postcon The string list returns with a list of key values for the named section.
 
-  @param   strSection as a String
-  @param   slIdents   as a TStringList
+  @param   strSection as a String as a constant
+  @param   slIdents   as a TStringList as a constant
 
 **)
-Procedure TOISMemIniFile.ReadSection(strSection : String; slIdents : TStringList);
+Procedure TOISMemIniFile.ReadSection(Const strSection : String; Const slIdents : TStringList);
 
 Begin
   FMemIniFile.ReadSection(strSection, slIdents);
@@ -168,11 +173,11 @@ End;
 
   @param   strSection as a String as a constant
   @param   strIdent   as a String as a constant
-  @param   strDefault as a String as a Constant
+  @param   strDefault as a String as a constant
   @return  a String
 
 **)
-Function TOISMemIniFile.ReadString(const strSection, strIdent, strDefault: String) : String;
+Function TOISMemIniFile.ReadString(Const strSection, strIdent, strDefault: String) : String;
 
 Begin
   Result := FMemIniFile.ReadString(strSection, strIdent, strDefault);
@@ -201,10 +206,10 @@ End;
 
   @param   strSection as a String as a constant
   @param   strIdent   as a String as a constant
-  @param   iValue     as an Integer
+  @param   iValue     as an Integer as a constant
 
 **)
-Procedure TOISMemIniFile.WriteInteger(const strSection, strIdent: String; iValue: Integer);
+Procedure TOISMemIniFile.WriteInteger(Const strSection, strIdent: String; Const iValue: Integer);
 
 Begin
   FMemIniFile.WriteInteger(strSection, strIdent, iValue);
@@ -222,7 +227,7 @@ End;
   @param   strValue   as a String as a Constant
 
 **)
-Procedure TOISMemIniFile.WriteString(const strSection, strIdent, strValue: String);
+Procedure TOISMemIniFile.WriteString(Const strSection, strIdent, strValue: String);
 
 Begin
   FMemIniFile.WriteString(strSection, strIdent, strValue);

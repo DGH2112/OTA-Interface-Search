@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Dec 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.OTAServicePaths;
@@ -40,11 +40,11 @@ Type
     FOTACodeTree  : TVirtualStringTree;
     FComparer     : TTargetSearchPathComparer;
   Strict Protected
-    Procedure AddServicePath(TreeNode: Pointer);
+    Procedure AddServicePath(Const TreeNode: Pointer);
     Function  ShortestServicePath: Pointer;
     Procedure SortServicePaths;
   Public
-    Constructor Create(vstOTACodeTree : TVirtualStringTree);
+    Constructor Create(Const vstOTACodeTree : TVirtualStringTree);
     Destructor Destroy; Override;
   End;
 
@@ -52,8 +52,6 @@ Implementation
 
 Uses
   SysUtils;
-
-{ TOISOTAServicePaths.TServicePathComparer }
 
 (**
 
@@ -73,8 +71,6 @@ Begin
   Result := Left.FPathLength - Right.FPathLength;
 End;
 
-{ TOISOTAServicePaths }
-
 (**
 
   This mehod adds a service path pointer and path length to the collection.
@@ -82,10 +78,10 @@ End;
   @precon  TreeNode must be a valid PVirtualNode pointer.
   @postcon Adds a service path and length to the end of the collection.
 
-  @param   TreeNode as a Pointer
+  @param   TreeNode as a Pointer as a constant
 
 **)
-Procedure TOISOTATargetSearchPaths.AddServicePath(TreeNode: Pointer);
+Procedure TOISOTATargetSearchPaths.AddServicePath(Const TreeNode: Pointer);
 
 Var
   P : PVirtualNode;
@@ -110,10 +106,10 @@ End;
   @precon  vstOTACodeTree must be a valid instance.
   @postcon Creates an empty collection.
 
-  @param   vstOTACodeTree as a TVirtualStringTree
+  @param   vstOTACodeTree as a TVirtualStringTree as a constant
 
 **)
-Constructor TOISOTATargetSearchPaths.Create(vstOTACodeTree: TVirtualStringTree);
+Constructor TOISOTATargetSearchPaths.Create(Const vstOTACodeTree: TVirtualStringTree);
 
 Begin
   FComparer := TTargetSearchPathComparer.Create;

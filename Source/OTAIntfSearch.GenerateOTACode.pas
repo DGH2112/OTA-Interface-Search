@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Dec 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.GenerateOTACode;
@@ -34,61 +34,63 @@ Type
     FTargetSearchRegEx    : TRegEx;
     FTargeting            : Boolean;
   Strict Protected
-    Procedure GenerateCode(iInterfaceObjectIndex, iMethodIndex : Integer; LeafType : TLeafType;
-      strTargetSearch : String);
-    Function GetIdentifier(iInterfaceObjectIndex, iMethodIndex : Integer;
-      LeafType : TLeafType) : String;
-    Function AddNode(ParentNode: Pointer; iFileIndex, iInterfaceObjectIndex, iMethodIndex : Integer;
-      LeafType: TLeafType): Pointer;
-    Function AddInterface(ParentNode: Pointer; iInterfaceObjectIndex : Integer) : Pointer;
-    Function AddMethod(ParentNode: Pointer; iInterfaceObjectIndex,
+    Procedure GenerateCode(Const iInterfaceObjectIndex, iMethodIndex : Integer;
+      Const LeafType : TLeafType; Const strTargetSearch : String);
+    Function GetIdentifier(Const iInterfaceObjectIndex, iMethodIndex : Integer;
+      Const LeafType : TLeafType) : String;
+    Function AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
+      iMethodIndex : Integer; Const LeafType: TLeafType): Pointer;
+    Function AddInterface(Const ParentNode: Pointer; Const iInterfaceObjectIndex : Integer) : Pointer;
+    Function AddMethod(Const ParentNode: Pointer; Const iInterfaceObjectIndex,
       iMethodIndex : Integer) : Pointer;
-    Procedure FindInterfaceRef(ParentNode : PVirtualNode; strIdent : String;
-      iParentInterface : Integer);
-    Function  IsService(ParentNode : PVirtualNode; strIdent : String;
-      iParentInterface : Integer) : Boolean;
-    Function  IsDuplicate(ParentNode : PVirtualNode; strIdent : String;
-      iInterfaceObjectIndex : Integer) : Boolean;
-    Function IsNotifier(ParentNode : PVirtualNode; strIdent, strMethod : String;
-      iParentInterface, iInterface, iMethod : Integer) : Boolean;
-    Function  IsQueryInterface(ParentNode : PVirtualNode; strIdent : String;
-      iParentInterface : Integer) : Boolean;
+    Procedure FindInterfaceRef(Const ParentNode : PVirtualNode; Const strIdent : String;
+      Const iParentInterface : Integer);
+    Function  IsService(Const ParentNode : PVirtualNode; Const strIdent : String;
+      Const iParentInterface : Integer) : Boolean;
+    Function  IsDuplicate(Const ParentNode : PVirtualNode; Const strIdent : String;
+      Const iInterfaceObjectIndex : Integer) : Boolean;
+    Function IsNotifier(Const ParentNode : PVirtualNode; Const strIdent, strMethod : String;
+      Const iParentInterface, iInterface, iMethod : Integer) : Boolean;
+    Function  IsQueryInterface(Const ParentNode : PVirtualNode; Const strIdent : String;
+      Const iParentInterface : Integer) : Boolean;
     Procedure BuildIndex;
-    Procedure HideNonTargettedNodes(StartingNode : PVirtualNode);
-    Function  IsTarget(Node : PVirtualNode) : Boolean;
+    Procedure HideNonTargettedNodes(Const StartingNode : PVirtualNode);
+    Function  IsTarget(Const Node : PVirtualNode) : Boolean;
   Public
-    Constructor Create(OISToolsAPIFiles : IOISToolsAPIFiles; iFileIndex : Integer;
-      vstOTACodeTree : TVirtualStringTree; OISProgressManager : IOISProgressManager);
+    Constructor Create(Const OISToolsAPIFiles : IOISToolsAPIFiles; Const iFileIndex : Integer;
+      Const vstOTACodeTree : TVirtualStringTree; Const OISProgressManager : IOISProgressManager);
     Destructor Destroy; Override;
   End;
 
 Implementation
 
 Uses
-  //CodeSiteLogging,
+  {$IFDEF DEBUG}
+  CodeSiteLogging,
+  {$ENDIF}
   SysUtils,
   OTAIntfSearch.Constants,
   OTAIntfSearch.Functions,
-  OTAIntfSearch.InterfaceIndex, OTAIntfSearch.OTAServicePaths;
+  OTAIntfSearch.InterfaceIndex,
+  OTAIntfSearch.OTAServicePaths;
 
 
 (**
 
-  This method adds an interface or class reference to the OTA Code tree with the given node as a
-  parent.
+  This method adds an interface or class reference to the OTA Code tree with the given node as a parent.
 
   @precon  ParentNode must either be a valid node or Nil.
-  @postcon The interface / class is added to the OTA Code Tree and if its identifier has been found
-           before then the recursive search is stopped. Returns the pointer to the new node created
-           in the tree.
+  @postcon The interface / class is added to the OTA Code Tree and if its identifier has been found 
+           before then the recursive search is stopped. Returns the pointer to the new node created in
+           the tree.
 
-  @param   ParentNode            as a Pointer
-  @param   iInterfaceObjectIndex as an Integer
+  @param   ParentNode            as a Pointer as a constant
+  @param   iInterfaceObjectIndex as an Integer as a constant
   @return  a Pointer
 
 **)
-Function TOISGenerateOTACode.AddInterface(ParentNode: Pointer;
-  iInterfaceObjectIndex : Integer): Pointer;
+Function TOISGenerateOTACode.AddInterface(Const ParentNode: Pointer;
+  Const iInterfaceObjectIndex : Integer): Pointer;
 
 Var
   strIdent : String;
@@ -110,17 +112,17 @@ End;
   This method adds a method to the OTA Code Tree with ParentNode as the parent of the new node.
 
   @precon  ParentNode must either be a valid node or Nil.
-  @postcon The function / procedure / property is added to the OTA Code Tree and if its identifier
-           has been found before then the recursive search is stopped. Returns the pointer to the
-           new node created in the tree.
+  @postcon The function / procedure / property is added to the OTA Code Tree and if its identifier has 
+           been found before then the recursive search is stopped. Returns the pointer to the new node
+           created in the tree.
 
-  @param   ParentNode            as a Pointer
-  @param   iInterfaceObjectIndex as an Integer
-  @param   iMethodIndex          as an Integer
+  @param   ParentNode            as a Pointer as a constant
+  @param   iInterfaceObjectIndex as an Integer as a constant
+  @param   iMethodIndex          as an Integer as a constant
   @return  a Pointer
 
 **)
-Function TOISGenerateOTACode.AddMethod(ParentNode: Pointer; iInterfaceObjectIndex,
+Function TOISGenerateOTACode.AddMethod(Const ParentNode: Pointer; Const iInterfaceObjectIndex,
   iMethodIndex: Integer): Pointer;
 
 Var
@@ -138,19 +140,19 @@ End;
 
   This method adds a node to the OTA Code Tree using ParentNode as its parent.
 
-  @precon  ParentNode must either be a  valid node or Nil.
+  @precon  ParentNode must either be a valid node or Nil.
   @postcon A new node is added to the OTA Code tree view.
 
-  @param   ParentNode            as a Pointer
-  @param   iFileIndex            as an Integer
-  @param   iInterfaceObjectIndex as an Integer
-  @param   iMethodIndex          as an Integer
-  @param   LeafType              as a TLeafType
+  @param   ParentNode            as a Pointer as a constant
+  @param   iFileIndex            as an Integer as a constant
+  @param   iInterfaceObjectIndex as an Integer as a constant
+  @param   iMethodIndex          as an Integer as a constant
+  @param   LeafType              as a TLeafType as a constant
   @return  a Pointer
 
 **)
-Function TOISGenerateOTACode.AddNode(ParentNode: Pointer; iFileIndex, iInterfaceObjectIndex,
-  iMethodIndex: Integer; LeafType: TLeafType) : Pointer;
+Function TOISGenerateOTACode.AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
+  iMethodIndex: Integer; Const LeafType: TLeafType) : Pointer;
 
 Var
   NodeData : PTreeData;
@@ -191,6 +193,9 @@ End;
 **)
 Procedure TOISGenerateOTACode.BuildIndex;
 
+Const
+  strNOTAPattern = 'I[NO]TA[a-z0-9]+';
+
 Var
   iInterface : Integer;
   iMethod: Integer;
@@ -201,7 +206,7 @@ Var
 
 Begin
   MethodRegEx := TRegEx.Create(strMethodInterfaceSearch, [roCompiled, roIgnoreCase, roSingleLine]);
-  OTAInterfaceRegEx := TRegEx.Create('I[NO]TA[a-z0-9]+', [roCompiled, roIgnoreCase, roSingleLine]);
+  OTAInterfaceRegEx := TRegEx.Create(strNOTAPattern, [roCompiled, roIgnoreCase, roSingleLine]);
   FOISInterfaceIndex := TOISInterfaceIndex.Create;
   For iInterface := 0 To FToolsAPIFile.InterfaceObjectCount - 1 Do
     For iMethod := 0 To FToolsAPIFile.InterfaceObjectMethods[iInterface].MethodPropertyCount - 1 Do
@@ -223,17 +228,18 @@ End;
   This is a constructor for the TOISGenerateOTACode class.
 
   @precon  None.
-  @postcon Stores a reference the the OISToolsAPIFiles interface along with a file index for the
-           current file to used to generate the code.
+  @postcon Stores a reference the the OISToolsAPIFiles interface along with a file index for the current
+           file to used to generate the code.
 
-  @param   OISToolsAPIFiles   as an IOISToolsAPIFiles
-  @param   iFileIndex         as an Integer
-  @param   vstOTACodeTree     as a TVirtualStringTree
-  @param   OISProgressManager as an IOISProgressManager
+  @param   OISToolsAPIFiles   as an IOISToolsAPIFiles as a constant
+  @param   iFileIndex         as an Integer as a constant
+  @param   vstOTACodeTree     as a TVirtualStringTree as a constant
+  @param   OISProgressManager as an IOISProgressManager as a constant
 
 **)
-Constructor TOISGenerateOTACode.Create(OISToolsAPIFiles : IOISToolsAPIFiles; iFileIndex : Integer;
-  vstOTACodeTree : TVirtualStringTree; OISProgressManager : IOISProgressManager);
+Constructor TOISGenerateOTACode.Create(Const OISToolsAPIFiles : IOISToolsAPIFiles;
+  Const iFileIndex : Integer; Const vstOTACodeTree : TVirtualStringTree;
+  Const OISProgressManager : IOISProgressManager);
 
 Begin
   FOISTargetSearchPaths := TOISOTATargetSearchPaths.Create(vstOTACodeTree);
@@ -261,20 +267,23 @@ End;
 
 (**
 
-  This method attempts to find an interface / class declaration or a method  / property declaration
-  which contains a specific identifier reference in its inheritance.
+  This method attempts to find an interface / class declaration or a method / property declaration which 
+  contains a specific identifier reference in its inheritance.
 
   @precon  ParentNode must be a valid reference or Nil.
-  @postcon If an interface / class  / method / property is found that matches then a node is added
-           and the search process recursively continued.
+  @postcon If an interface / class / method / property is found that matches then a node is added and 
+           the search process recursively continued.
 
-  @param   ParentNode       as a PVirtualNode
-  @param   strIdent         as a String
-  @param   iParentInterface as an Integer
+  @param   ParentNode       as a PVirtualNode as a constant
+  @param   strIdent         as a String as a constant
+  @param   iParentInterface as an Integer as a constant
 
 **)
-Procedure TOISGenerateOTACode.FindInterfaceRef(ParentNode: PVirtualNode; strIdent: String;
-  iParentInterface : Integer);
+Procedure TOISGenerateOTACode.FindInterfaceRef(Const ParentNode: PVirtualNode; Const strIdent: String;
+  Const iParentInterface : Integer);
+
+Const
+  iUpdateCount = 10;
 
 Var
   iInterface, iMethod : Integer;
@@ -288,7 +297,7 @@ Begin
       For iIndex := iFirst To iLast Do
         Begin
           iInterface := FOISInterfaceIndex.InterfaceIndex(iIndex);
-          If FNodeCount Mod 10 = 0 Then
+          If FNodeCount Mod iUpdateCount = 0 Then
             FOISProgressManager.Update(1, 0, Format('(%1.0n) %s', [Int(FNodeCount),
               FToolsAPIFile.InterfaceObject[iInterface]]));
           iMethod := FOISInterfaceIndex.MethodIndex(iIndex);
@@ -302,21 +311,21 @@ End;
 
 (**
 
-  This method starts the search process for routes through the OTA code to get to the selected
-  interface / class / method / property.
+  This method starts the search process for routes through the OTA code to get to the selected interface 
+  / class / method / property.
 
   @precon  None.
-  @postcon Starts the search process for routes through the OTA code to get to the selected
-           interface / class / method / property.
+  @postcon Starts the search process for routes through the OTA code to get to the selected interface / 
+           class / method / property.
 
-  @param   iInterfaceObjectIndex as an Integer
-  @param   iMethodIndex          as an Integer
-  @param   LeafType              as a TLeafType
-  @param   strTargetSearch       as a String
+  @param   iInterfaceObjectIndex as an Integer as a constant
+  @param   iMethodIndex          as an Integer as a constant
+  @param   LeafType              as a TLeafType as a constant
+  @param   strTargetSearch       as a String as a constant
 
 **)
-Procedure TOISGenerateOTACode.GenerateCode(iInterfaceObjectIndex, iMethodIndex : Integer;
-  LeafType : TLeafType; strTargetSearch : String);
+Procedure TOISGenerateOTACode.GenerateCode(Const iInterfaceObjectIndex, iMethodIndex : Integer;
+  Const LeafType : TLeafType; Const strTargetSearch : String);
 
 Var
   N: PVirtualNode;
@@ -363,14 +372,14 @@ End;
   @precon  the indexes must be valid indexes into the FToolsAPIFile.
   @postcon The identifier of the given line of code is returned.
 
-  @param   iInterfaceObjectIndex as an Integer
-  @param   iMethodIndex          as an Integer
-  @param   LeafType              as a TLeafType
+  @param   iInterfaceObjectIndex as an Integer as a constant
+  @param   iMethodIndex          as an Integer as a constant
+  @param   LeafType              as a TLeafType as a constant
   @return  a String
 
 **)
-Function TOISGenerateOTACode.GetIdentifier(iInterfaceObjectIndex, iMethodIndex: Integer;
-  LeafType: TLeafType): String;
+Function TOISGenerateOTACode.GetIdentifier(Const iInterfaceObjectIndex, iMethodIndex: Integer;
+  Const LeafType: TLeafType): String;
 
 Begin
   Case LeafType Of
@@ -383,16 +392,16 @@ End;
 
 (**
 
-  This method hides an nodes in the OTA Code Tree that have not matched the target search or on a
-  path to a target search.
+  This method hides an nodes in the OTA Code Tree that have not matched the target search or on a path to
+  a target search.
 
   @precon  StartingNode must be a valid node.
   @postcon Nodes no matching the target search are hidden.
 
-  @param   StartingNode as a PVirtualNode
+  @param   StartingNode as a PVirtualNode as a constant
 
 **)
-Procedure TOISGenerateOTACode.HideNonTargettedNodes(StartingNode : PVirtualNode);
+Procedure TOISGenerateOTACode.HideNonTargettedNodes(Const StartingNode : PVirtualNode);
 
 Begin
   If StartingNode <> Nil Then
@@ -430,22 +439,21 @@ End;
 
 (**
 
-  This method checks the passed identifier for being a duplicate, i.e. wev have already found this
+  This method checks the passed identifier for being a duplicate, i.e. wev have already found this 
   identifier before. This method is here to prevent loops.
 
-  @precon  ParentNode must be a valid node and iParentInterface must be a valid index into the
+  @precon  ParentNode must be a valid node and iParentInterface must be a valid index into the 
            FToolsAPIFile interfaces.
-  @postcon If a duplicate is found a loop node is added under the parent and the functin returns
-           true.
+  @postcon If a duplicate is found a loop node is added under the parent and the functin returns true.
 
-  @param   ParentNode               as a PVirtualNode
-  @param   strIdent                 as a String
-  @param   iInterfaceObjectIndex as an Integer
+  @param   ParentNode            as a PVirtualNode as a constant
+  @param   strIdent              as a String as a constant
+  @param   iInterfaceObjectIndex as an Integer as a constant
   @return  a Boolean
 
 **)
-Function TOISGenerateOTACode.IsDuplicate(ParentNode: PVirtualNode; strIdent: String;
-  iInterfaceObjectIndex : Integer): Boolean;
+Function TOISGenerateOTACode.IsDuplicate(Const ParentNode: PVirtualNode; Const strIdent: String;
+  Const iInterfaceObjectIndex : Integer): Boolean;
 
 Var
   P: PVirtualNode;
@@ -476,17 +484,17 @@ End;
   @precon  ParentNode must be a valid PVirtualNode or Nil and all the indexes must be valid.
   @postcon If the method is a notifier a special nodes is created.
 
-  @param   ParentNode       as a PVirtualNode
-  @param   strIdent         as a String
-  @param   strMethod        as a String
-  @param   iParentInterface as an Integer
-  @param   iInterface       as an Integer
-  @param   iMethod          as an Integer
+  @param   ParentNode       as a PVirtualNode as a constant
+  @param   strIdent         as a String as a constant
+  @param   strMethod        as a String as a constant
+  @param   iParentInterface as an Integer as a constant
+  @param   iInterface       as an Integer as a constant
+  @param   iMethod          as an Integer as a constant
   @return  a Boolean
 
 **)
-Function TOISGenerateOTACode.IsNotifier(ParentNode : PVirtualNode; strIdent, strMethod : String;
-  iParentInterface, iInterface, iMethod : Integer) : Boolean;
+Function TOISGenerateOTACode.IsNotifier(Const ParentNode : PVirtualNode; Const strIdent,
+  strMethod : String; Const iParentInterface, iInterface, iMethod : Integer) : Boolean;
 
 Var
   strSearch : String;
@@ -509,20 +517,24 @@ End;
 
 (**
 
-  This method test the given identifier for being an interface that can be cast to something else.
-  If so a special node is created and the search continued.
+  This method test the given identifier for being an interface that can be cast to something else. If so 
+  a special node is created and the search continued.
 
   @precon  ParentNode must be a valid node or Nil and the parent index must be valid.
   @postcon If the identifier is a notifier a special node is created and the search continued.
 
-  @param   ParentNode       as a PVirtualNode
-  @param   strIdent         as a String
-  @param   iParentInterface as an Integer
+  @param   ParentNode       as a PVirtualNode as a constant
+  @param   strIdent         as a String as a constant
+  @param   iParentInterface as an Integer as a constant
   @return  a Boolean
 
 **)
-Function TOISGenerateOTACode.IsQueryInterface(ParentNode : PVirtualNode; strIdent : String;
-  iParentInterface : Integer) : Boolean;
+Function TOISGenerateOTACode.IsQueryInterface(Const ParentNode : PVirtualNode; Const strIdent : String;
+  Const iParentInterface : Integer) : Boolean;
+
+Const
+  iIdentifier = 1;
+  iParentIdentifier = 2;
 
 Var
   i : Integer;
@@ -532,33 +544,33 @@ Begin
   Result := False;
   For i := Low(strQueryInterfaces) To High(strQueryInterfaces) Do
     Begin
-      If CompareText(strQueryInterfaces[i, 1], strIdent) = 0 Then
+      If CompareText(strQueryInterfaces[i, iIdentifier], strIdent) = 0 Then
         Begin
           Result := True;
           P := AddNode(ParentNode, FFileIndex, iParentInterface, 0, ltQueryInterface);
-          FindInterfaceRef(P, strQueryInterfaces[i, 2], iParentInterface);
+          FindInterfaceRef(P, strQueryInterfaces[i, iParentIdentifier], iParentInterface);
         End;
     End;
 End;
 
 (**
 
-  This method test the given identifier to determines whether it is a service or not. If so, a
-  servive node is added to the tree under the given parent.
+  This method test the given identifier to determines whether it is a service or not. If so, a servive 
+  node is added to the tree under the given parent.
 
-  @precon  ParentNode must be a valid node and iParentInterface must be a valid index into the
+  @precon  ParentNode must be a valid node and iParentInterface must be a valid index into the 
            FToolsAPIFile interfaces.
-  @postcon If a services is found a service node is added under the parent node and returns true
-           else returns false.
+  @postcon If a services is found a service node is added under the parent node and returns true else 
+           returns false.
 
-  @param   ParentNode       as a PVirtualNode
-  @param   strIdent         as a String
-  @param   iParentInterface as an Integer
+  @param   ParentNode       as a PVirtualNode as a constant
+  @param   strIdent         as a String as a constant
+  @param   iParentInterface as an Integer as a constant
   @return  a Boolean
 
 **)
-Function TOISGenerateOTACode.IsService(ParentNode : PVirtualNode; strIdent: String;
-  iParentInterface : Integer): Boolean;
+Function TOISGenerateOTACode.IsService(Const ParentNode : PVirtualNode; Const strIdent: String;
+  Const iParentInterface : Integer): Boolean;
 
 Var
   RegEx : TRegEx;
@@ -579,18 +591,18 @@ End;
 
 (**
 
-  This method checks the given node as to whether its a target search node and if so returns true
-  and adds the node to the TargetSearchPaths collection.
+  This method checks the given node as to whether its a target search node and if so returns true and 
+  adds the node to the TargetSearchPaths collection.
 
   @precon  Node must be a valid node.
-  @postcon Checks the given node as to whether its a target search node and if so returns true
-           and adds the node to the TargetSearchPaths collection.
+  @postcon Checks the given node as to whether its a target search node and if so returns true and adds 
+           the node to the TargetSearchPaths collection.
 
-  @param   Node as a PVirtualNode
+  @param   Node as a PVirtualNode as a constant
   @return  a Boolean
 
 **)
-Function TOISGenerateOTACode.IsTarget(Node : PVirtualNode): Boolean;
+Function TOISGenerateOTACode.IsTarget(Const Node : PVirtualNode): Boolean;
 
 Begin
   Result := False;

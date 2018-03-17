@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    18 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.InterfaceObjectMethods;
@@ -31,10 +31,10 @@ Type
   Strict Private
     FMethods : TList<TMethodProperty>;
   Strict Protected
-    Function  AddLine(strLine: String; strComment: String; iLineNo: Integer): Integer;
-    Function  GetComment(iIndex: Integer): String;
-    Function  GetLineNo(iIndex: Integer): Integer;
-    Function  GetMethodProperty(iIndex: Integer): String;
+    Function  AddLine(Const strLine, strComment: String; Const iLineNo: Integer): Integer;
+    Function  GetComment(Const iIndex: Integer): String;
+    Function  GetLineNo(Const iIndex: Integer): Integer;
+    Function  GetMethodProperty(Const iIndex: Integer): String;
     Function  GetMethodPropertyCount: Integer;
   Public
     Constructor Create;
@@ -43,8 +43,6 @@ Type
 
 Implementation
 
-{ TOISInterfaceObjectMethods }
-
 (**
 
   This method adds the line of code also with its comment and line number to the collection.
@@ -52,13 +50,14 @@ Implementation
   @precon  None.
   @postcon The information is added to the end of the collection.
 
-  @param   strLine    as a String
-  @param   strComment as a String
-  @param   iLineNo    as an Integer
+  @param   strLine    as a String as a constant
+  @param   strComment as a String as a constant
+  @param   iLineNo    as an Integer as a constant
   @return  an Integer
 
 **)
-Function TOISInterfaceObjectMethods.AddLine(strLine, strComment: String; iLineNo: Integer): Integer;
+Function TOISInterfaceObjectMethods.AddLine(Const strLine, strComment: String;
+  Const iLineNo: Integer): Integer;
 
 Var
   recMethod : TMethodProperty;
@@ -106,11 +105,11 @@ End;
   @precon  iIndex must be a valid index.
   @postcon Returns the comment associated with the indexed method.
 
-  @param   iIndex as an Integer
+  @param   iIndex as an Integer as a constant
   @return  a String
 
 **)
-Function TOISInterfaceObjectMethods.GetComment(iIndex: Integer): String;
+Function TOISInterfaceObjectMethods.GetComment(Const iIndex: Integer): String;
 
 Begin
   Result := FMethods[iIndex].FComment;
@@ -123,11 +122,11 @@ End;
   @precon  iIndex must be a valid index.
   @postcon Returns the line number corresponding to the code in the source file.
 
-  @param   iIndex as an Integer
+  @param   iIndex as an Integer as a constant
   @return  an Integer
 
 **)
-Function TOISInterfaceObjectMethods.GetLineNo(iIndex: Integer): Integer;
+Function TOISInterfaceObjectMethods.GetLineNo(Const iIndex: Integer): Integer;
 
 Begin
   Result := FMethods[iIndex].FLineNo;
@@ -140,11 +139,11 @@ End;
   @precon  iIndex must be a valid index.
   @postcon Returns the code associated with the indexed method.
 
-  @param   iIndex as an Integer
+  @param   iIndex as an Integer as a constant
   @return  a String
 
 **)
-Function TOISInterfaceObjectMethods.GetMethodProperty(iIndex: Integer): String;
+Function TOISInterfaceObjectMethods.GetMethodProperty(Const iIndex: Integer): String;
 
 Begin
   Result := FMethods[iIndex].FText;

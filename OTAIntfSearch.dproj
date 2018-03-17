@@ -60,6 +60,8 @@
         <DCC_DcuOutput>$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <DCC_UnitSearchPath>D:\Documents\RAD Studio\Library\Virtual Treeview 6.5.0\Source;D:\Documents\RAD Studio\Library\SynEdit 2.1.0\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UNIT_PLATFORM>false</DCC_UNIT_PLATFORM>
+        <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>

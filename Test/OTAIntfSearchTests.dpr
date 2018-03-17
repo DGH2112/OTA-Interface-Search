@@ -15,13 +15,13 @@ program OTAIntfSearchTests;
 {$ENDIF}
 
 uses
-  DUnitTestRunner,
+  TestInsight.DUnit,
   OTAIntfSearch.Constants in '..\Source\OTAIntfSearch.Constants.pas',
   TestOTAIntfSearch.Constants in 'TestOTAIntfSearch.Constants.pas';
 
 {$R *.RES}
 
 begin
-  DUnitTestRunner.RunRegisteredTests;
+  RunRegisteredTests;
 end.
 

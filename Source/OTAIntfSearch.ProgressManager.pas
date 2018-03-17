@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    21 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.ProgressManager;
@@ -40,11 +40,11 @@ Type
     FProgressForm : TfrmProgress;
   Strict Protected
     Procedure Hide;
-    Procedure RegisterStages(iStages: Integer);
-    Procedure Show(iStage: Integer; iTotal: Integer);
-    Procedure Update(iStage: Integer; iPosition: Integer; strFileName : String);
+    Procedure RegisterStages(Const iStages: Integer);
+    Procedure Show(Const iStage, iTotal: Integer);
+    Procedure Update(Const iStage, iPosition: Integer; Const strFileName : String);
   Public
-    Constructor Create(MainForm : TForm; Taskbar : TTaskbar);
+    Constructor Create(Const MainForm : TForm; Const Taskbar : TTaskbar);
     Destructor Destroy; Override;
   End;
 
@@ -53,8 +53,6 @@ Implementation
 Uses
   SysUtils;
 
-{ TOISProgressManager }
-
 (**
 
   A constructor for the TOISProgressManager class.
@@ -62,13 +60,14 @@ Uses
   @precon  None.
   @postcon Initialises the class and creates a form for displaying progress.
 
-  @param   MainForm as a TForm
-  @param   Taskbar  as a TTaskbar
+  @param   MainForm as a TForm as a constant
+  @param   Taskbar  as a TTaskbar as a constant
 
 **)
-Constructor TOISProgressManager.Create(MainForm : TForm; Taskbar : TTaskbar);
+Constructor TOISProgressManager.Create(Const MainForm : TForm; Const Taskbar : TTaskbar);
 
 Begin
+  //: @bug Does not update taskbar. Why???
   FStages := 0;
   FStageRecords := TList<TStage>.Create;
   FProgressForm := TfrmProgress.Create(MainForm);
@@ -111,10 +110,10 @@ End;
   @precon  This must be the first call before sowing and updating progress.
   @postcon The stages of progress are setup in the class.
 
-  @param   iStages as an Integer
+  @param   iStages as an Integer as a constant
 
 **)
-Procedure TOISProgressManager.RegisterStages(iStages: Integer);
+Procedure TOISProgressManager.RegisterStages(Const iStages: Integer);
 
 Var
   recStage : TStage;
@@ -129,17 +128,16 @@ End;
 
 (**
 
-  This method show the progress for the first time ans sets the total number of units to be
-  progressed.
+  This method show the progress for the first time ans sets the total number of units to be progressed.
 
   @precon  iStage must be a valid stage of progress.
   @postcon The progress stage is setup for progressing.
 
-  @param   iStage as an Integer
-  @param   iTotal as an Integer
+  @param   iStage as an Integer as a constant
+  @param   iTotal as an Integer as a constant
 
 **)
-Procedure TOISProgressManager.Show(iStage, iTotal: Integer);
+Procedure TOISProgressManager.Show(Const iStage, iTotal: Integer);
 
 Var
   recStage: TStage;
@@ -163,12 +161,12 @@ End;
   @precon  iStage must be a valid stage.
   @postcon The progress is updated.
 
-  @param   iStage      as an Integer
-  @param   iPosition   as an Integer
-  @param   strFileName as a String
+  @param   iStage      as an Integer as a constant
+  @param   iPosition   as an Integer as a constant
+  @param   strFileName as a String as a constant
 
 **)
-Procedure TOISProgressManager.Update(iStage, iPosition: Integer; strFileName : String);
+Procedure TOISProgressManager.Update(Const iStage, iPosition: Integer; Const strFileName : String);
 
 Var
   recStage: TStage;

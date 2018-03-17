@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Dec 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.Interfaces;
@@ -20,12 +20,12 @@ Type
       INI file. **)
   IOISINIFile = Interface
   ['{0EFC06E6-C585-4E33-A173-EAD71BFA3C3F}']
-    Function  ReadInteger(const strSection, strIdent: String; iDefault: Integer) : Integer;
-    Procedure WriteInteger(const strSection, strIdent: String; iValue: Integer);
-    Function  ReadString(const strSection, strIdent, strDefault: String) : String;
-    Procedure WriteString(const strSection, strIdent, strValue: String);
-    Procedure EraseSection(strSection : String);
-    Procedure ReadSection(strSection : String; slIdents : TStringList);
+    Function  ReadInteger(Const strSection, strIdent: String; Const iDefault: Integer) : Integer;
+    Procedure WriteInteger(Const strSection, strIdent: String; Const iValue: Integer);
+    Function  ReadString(Const strSection, strIdent, strDefault: String) : String;
+    Procedure WriteString(Const strSection, strIdent, strValue: String);
+    Procedure EraseSection(Const strSection : String);
+    Procedure ReadSection(Const strSection : String; Const slIdents : TStringList);
     Procedure UpdateFile;
   End;
 
@@ -34,10 +34,10 @@ Type
   IOISInterfaceObjectMethods = Interface
   ['{F1D86A3A-2ADD-43EE-96E9-D1352E04C1B9}']
     Function  GetMethodPropertyCount : Integer;
-    Function  GetMethodProperty(iIndex : Integer) : String;
-    Function  GetLineNo(iIndex : Integer) : Integer;
-    Function  GetComment(iIndex : Integer) : String;
-    Function  AddLine(strLine, strComment : String; iLineNo : Integer) : Integer;
+    Function  GetMethodProperty(Const iIndex : Integer) : String;
+    Function  GetLineNo(Const iIndex : Integer) : Integer;
+    Function  GetComment(Const iIndex : Integer) : String;
+    Function  AddLine(Const strLine, strComment : String; Const iLineNo : Integer) : Integer;
     (**
       This property returns the number of lines of code stored within the ToolsAPIFile.
       @precon  None.
@@ -49,26 +49,26 @@ Type
       This property returns the line text from the ToolsAPIFile for the given index.
       @precon  iIndex must be a valid index between 0 and LineCount - 1.
       @postcon The line of text is returned.
-      @param   iIndex as an Integer
+      @param   iIndex as an Integer as a Constant
       @return  a String
     **)
-    Property  MethodProperty[iIndex : Integer] : String Read GetMethodProperty;
+    Property  MethodProperty[Const iIndex : Integer] : String Read GetMethodProperty;
     (**
       This property returns the line number from the ToolsAPIFile for the given index.
       @precon  iIndex must be a valid index between 0 and LineCount - 1.
       @postcon The line number in the source file for the text is returned.
-      @param   iIndex as an Integer
+      @param   iIndex as an Integer as a Constant
       @return  an Integer
     **)
-    Property  LineNo[iIndex : Integer] : Integer Read GetLineNo;
+    Property  LineNo[Const iIndex : Integer] : Integer Read GetLineNo;
     (**
       This property returns the comment text from the ToolsAPIFile for the given index.
       @precon  iIndex must be a valid index between 0 and LineCount - 1.
       @postcon The comment text is returned.
-      @param   iIndex as an Integer
+      @param   iIndex as an Integer as a Constant
       @return  a String
     **)
-    Property  Comment[iIndex : Integer] : String Read GetComment;
+    Property  Comment[Const iIndex : Integer] : String Read GetComment;
   End;
 
   (** This interface provides methods and properties for adding lines of code (interfaces, classes
@@ -77,11 +77,11 @@ Type
   ['{D1DA4E11-BF3C-4FE4-B0B2-DDF7E58759BA}']
     Function  GetFileName : String;
     Function  GetInterfaceObjectCount : Integer;
-    Function  GetInterfaceObject(iIndex : Integer) : String;
-    Function  GetLineNo(iIndex : Integer) : Integer;
-    Function  GetComment(iIndex : Integer) : String;
-    Function  GetInterfaceObjectMethods(iIndex : Integer) : IOISInterfaceObjectMethods;
-    Function  AddLine(strLine, strComment : String; iLineNo : Integer) : Integer;
+    Function  GetInterfaceObject(Const iIndex : Integer) : String;
+    Function  GetLineNo(Const iIndex : Integer) : Integer;
+    Function  GetComment(Const iIndex : Integer) : String;
+    Function  GetInterfaceObjectMethods(Const iIndex : Integer) : IOISInterfaceObjectMethods;
+    Function  AddLine(Const strLine, strComment : String; Const iLineNo : Integer) : Integer;
     (**
       This property returns the filename corrsponding to the data held be the implementing object.
       @precon  None.
@@ -100,35 +100,35 @@ Type
       This property returns the line text from the ToolsAPIFile for the given index.
       @precon  iIndex must be a valid index between 0 and LineCount - 1.
       @postcon The line of text is returned.
-      @param   iIndex as an Integer
+      @param   iIndex as an Integer as a Constant
       @return  a String
     **)
-    Property  InterfaceObject[iIndex : Integer] : String Read GetInterfaceObject;
+    Property  InterfaceObject[Const iIndex : Integer] : String Read GetInterfaceObject;
     (**
       This property returns the line number from the ToolsAPIFile for the given index.
       @precon  iIndex must be a valid index between 0 and LineCount - 1.
       @postcon The line number in the source file for the text is returned.
-      @param   iIndex as an Integer
+      @param   iIndex as an Integer as a Constant
       @return  an Integer
     **)
-    Property  LineNo[iIndex : Integer] : Integer Read GetLineNo;
+    Property  LineNo[Const iIndex : Integer] : Integer Read GetLineNo;
     (**
       This property returns the comment text from the ToolsAPIFile for the given index.
       @precon  iIndex must be a valid index between 0 and LineCount - 1.
       @postcon The comment text is returned.
-      @param   iIndex as an Integer
+      @param   iIndex as an Integer as a Constant
       @return  a String
     **)
-    Property  Comment[iIndex : Integer] : String Read GetComment;
+    Property  Comment[Const iIndex : Integer] : String Read GetComment;
     (**
       This method returns the instance reference of the indexed collection of
       InterfaceObjectMethods.
       @precon  iIndex must be a valid index between 0 and MethodPropertyCount - 1.
       @postcon Returns the instance reference of the indexed collection of InterfaceObjectMethods.
-      @param   iIndex as an Integer
+      @param   iIndex as an Integer as a Constant
       @return  an IOISInterfaceObjectMethods
     **)
-    Property  InterfaceObjectMethods[iIndex : Integer] : IOISInterfaceObjectMethods
+    Property  InterfaceObjectMethods[Const iIndex : Integer] : IOISInterfaceObjectMethods
       Read GetInterfaceObjectMethods;
   End;
 
@@ -137,8 +137,8 @@ Type
   IOISToolsAPIFiles = Interface
   ['{B597E27B-A1EB-4DF4-AB4A-2951F9718EFE}']
     Function  GetFileCount : Integer;
-    Function  GetToolsAPIFile(iFileIndex : integer) : IOISToolsAPIFile;
-    Function  AddFile(strFileName : String) : Integer;
+    Function  GetToolsAPIFile(Const iFileIndex : integer) : IOISToolsAPIFile;
+    Function  AddFile(Const strFileName : String) : Integer;
     Procedure Clear;
     (**
       This property returns the number of files stored in the ToolsAPIFiles collection.
@@ -151,22 +151,22 @@ Type
       This property returns the indexed ToolsAPIFile from the collection.
       @precon  iFileIndex must be a valid index between 0 and FileCount - 1.
       @postcon An instance of the indexed ToolsAIPFile is returned.
-      @param   iFileIndex as an Integer
+      @param   iFileIndex as an Integer as a Constant
       @return  an IOISToolsAPIFile
     **)
-    Property  ToolsAPIFile[iFileIndex : Integer] : IOISToolsAPIFile Read GetToolsAPIFile;
+    Property  ToolsAPIFile[Const iFileIndex : Integer] : IOISToolsAPIFile Read GetToolsAPIFile;
   End;
 
   (** This interface is provided to allow the file parser interface to update the UI without
       knowing about item implementation. **)
   IOISInterfacesUIUpdater = Interface
   ['{A1FD8F97-6DE0-4B24-89A2-10CA83A53AE1}']
-    Procedure UpdateStatusPanel(strText: String; StatusPanelPosition: TStatusPanelPositions);
+    Procedure UpdateStatusPanel(Const strText: String; Const StatusPanelPosition: TStatusPanelPositions);
     Procedure BeginUpdate;
     Procedure Clear;
-    Function AddNode(ParentNode: Pointer; iFileIndex, iInterfaceObjectIndex, iMethodIndex : Integer;
-      LeafType: TLeafType): Pointer;
-    Procedure Expand(Node : Pointer);
+    Function AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
+      iMethodIndex : Integer; Const LeafType: TLeafType): Pointer;
+    Procedure Expand(Const Node : Pointer);
     Procedure EndUpdate;
   End;
 
@@ -174,45 +174,45 @@ Type
       of search paths. **)
   IOISFileParser = Interface
   ['{8B7F1D02-EC30-44D2-A033-417F8EADE8D3}']
-    Procedure ParseFiles(slSearchPaths : TStrings);
+    Procedure ParseFiles(Const slSearchPaths : TStrings);
   End;
 
   (** This interface provides access to a progress maanger for displaying progress in numerous
       forms (a progress form and through a task bar progress). **)
   IOISProgressManager = Interface
   ['{CD1C7418-3694-44ED-AC82-B2D8CB79606E}']
-    Procedure RegisterStages(iStages : Integer);
-    Procedure Show(iStage, iTotal : Integer);
-    Procedure Update(iStage, iPosition : Integer; strFileName : String);
+    Procedure RegisterStages(Const iStages : Integer);
+    Procedure Show(Const iStage, iTotal : Integer);
+    Procedure Update(Const iStage, iPosition : Integer; Const strFileName : String);
     Procedure Hide;
   End;
 
   (** This interface provides functionality for generating OTA code from a selected item. **)
   IOISGenerateOTACode = Interface
   ['{3F5C931E-1B1C-4806-B547-0B8597B02A34}']
-    Procedure GenerateCode(iInterfaceObjectIndex, iMethodIndex : Integer;
-      LeafType : TLeafType; strTargetSearch : String);
-    Function AddNode(ParentNode: Pointer; iFileIndex, iInterfaceObjectIndex, iMethodIndex : Integer;
-      LeafType: TLeafType): Pointer;
+    Procedure GenerateCode(Const iInterfaceObjectIndex, iMethodIndex : Integer;
+      Const LeafType : TLeafType; Const strTargetSearch : String);
+    Function AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
+      iMethodIndex : Integer; Const LeafType: TLeafType): Pointer;
   End;
 
   (** This interface provides for an index to search methods and properties that implement
       an interface identifier. **)
   IOISInterfaceIndex = Interface
   ['{DD22D91B-C040-4EAF-9C41-D4695BB8E441}']
-    Procedure AddInterfaceRef(strInterfaceIdent : String; iInterfaceObjectIndex,
+    Procedure AddInterfaceRef(Const strInterfaceIdent : String; Const iInterfaceObjectIndex,
       iMethodIndex : Integer);
     Procedure SortIndex;
-    Function FindInterface(strInterfaceIdent : String; var iInterfaceObjectIndex,
+    Function FindInterface(Const strInterfaceIdent : String; Var iInterfaceObjectIndex,
       iMethodIndex : Integer) : Boolean;
-    Function InterfaceIndex(iIndex : Integer) : Integer;
-    Function MethodIndex(iIndex : Integer) : Integer;
+    Function InterfaceIndex(Const iIndex : Integer) : Integer;
+    Function MethodIndex(Const iIndex : Integer) : Integer;
   End;
 
   (** An interface to collection service paths to find the shortest. **)
   IOISOTATargetSearchPaths = Interface
   ['{C60B3C98-9FEC-4566-A0E2-95FD9D364223}']
-    Procedure AddServicePath(TreeNode : Pointer);
+    Procedure AddServicePath(Const TreeNode : Pointer);
     Procedure SortServicePaths;
     Function  ShortestServicePath : Pointer;
   End;

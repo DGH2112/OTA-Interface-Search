@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    16 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.CustomVirtualStringTree;
@@ -40,6 +40,8 @@ Uses
 
   @precon  AOwner needs to be a valid instance.
   @postcon Sets up the string tree as required for the application.
+
+  @nocheck HardCodedInteger HardCodedString MissingCONSTInParam
 
   @param   AOwner as a TComponent
 

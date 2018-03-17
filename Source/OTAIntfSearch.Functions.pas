@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    22 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.Functions;
@@ -14,7 +14,7 @@ Interface
 Uses
   OTAIntfSearch.Types;
 
-  Function GetCodeIdentifier(strCode : String; LeafType : TLeafType) : String;
+  Function GetCodeIdentifier(Const strCode : String; Const LeafType : TLeafType) : String;
 
 Implementation
 
@@ -31,12 +31,12 @@ Uses
   @precon  None.
   @postcon The identifier of the interface, class, method or property is returned.
 
-  @param   strCode  as a String
-  @param   LeafType as a TLeafType
+  @param   strCode  as a String as a constant
+  @param   LeafType as a TLeafType as a constant
   @return  a String
 
 **)
-Function GetCodeIdentifier(strCode : String; LeafType : TLeafType) : String;
+Function GetCodeIdentifier(Const strCode : String; Const LeafType : TLeafType) : String;
 
 Var
   RegEx: TRegEx;

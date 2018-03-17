@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @version 1.0
-  @Date    17 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.BrowseFolderForm;
@@ -35,7 +35,7 @@ Type
   Strict Private
   Strict Protected
   Public
-    Class Function Execute(AOwner : TComponent; var strSearchFolder : String) : Boolean;
+    Class Function Execute(Const AOwner : TComponent; var strSearchFolder : String) : Boolean;
   End;
 
 Implementation
@@ -61,10 +61,13 @@ Uses
 **)
 Procedure TfrmBrowseFolder.btnOKClick(Sender: TObject);
 
+ResourceString
+  strSearchPathDoesNotExist = 'The search path "%s" does not exist!';
+
 Begin
   If Not SysUtils.DirectoryExists(ExtractFilePath(edtSearchPath.Text)) Then
     Begin
-      MessageDlg(Format('The search path "%s" does not exist!', [
+      MessageDlg(Format(strSearchPathDoesNotExist, [
         ExtractFilePath(edtSearchPath.Text)]), mtError, [mbOK], 0);
       ModalResult := mrNone;
       Exit;
@@ -83,12 +86,15 @@ End;
 **)
 Procedure TfrmBrowseFolder.edtSearchPathRightButtonClick(Sender: TObject);
 
+ResourceString
+  strToolsAPIPas = '\ToolsAPI.pas';
+
 Var
   strSearchPath : String;
 
 Begin
   If SelectDirectory(strSearchPath, [], 0) Then
-    edtSearchPath.Text := strSearchPath + '\ToolsAPI.pas';
+    edtSearchPath.Text := strSearchPath + strToolsAPIPas;
 End;
 
 (**
@@ -98,12 +104,12 @@ End;
   @precon  AOwner must be a valid instance
   @postcon A form is displayed to allow the user to select a directory.
 
-  @param   AOwner          as a TComponent
+  @param   AOwner          as a TComponent as a constant
   @param   strSearchFolder as a String as a reference
   @return  a Boolean
 
 **)
-Class Function TfrmBrowseFolder.Execute(AOwner : TComponent; var strSearchFolder : String) : Boolean;
+Class Function TfrmBrowseFolder.Execute(Const AOwner : TComponent; var strSearchFolder : String) : Boolean;
 
 Var
   frm: TfrmBrowseFolder;

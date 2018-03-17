@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    22 Nov 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.UIUpdater;
@@ -25,21 +25,18 @@ Type
     FInterfaces : TVirtualStringTree;
     FStatusBar  : TStatusBar;
   Strict Protected
-    Function AddNode(ParentNode: Pointer; iFileIndex, iInterfaceObjectIndex, iMethodIndex: Integer;
-      LeafType: TLeafType): Pointer;
+    Function AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
+      iMethodIndex: Integer; Const LeafType: TLeafType): Pointer;
     Procedure BeginUpdate;
     Procedure Clear;
     Procedure EndUpdate;
-    Procedure Expand(Node: Pointer);
-    Procedure UpdateStatusPanel(strText: String;
-      StatusPanelPosition: TStatusPanelPositions);
+    Procedure Expand(Const Node: Pointer);
+    Procedure UpdateStatusPanel(Const strText: String; Const StatusPanelPosition: TStatusPanelPositions);
   Public
-    Constructor Create(vstInterfaces: TVirtualStringTree; stbrStatusBar: TStatusBar);
+    Constructor Create(Const vstInterfaces: TVirtualStringTree; Const stbrStatusBar: TStatusBar);
   End;
 
 Implementation
-
-{ TOISUIUpdater }
 
 (**
 
@@ -48,16 +45,16 @@ Implementation
   @precon  ParentNode must be a valid not or Nil.
   @postcon A node is added to the interfaces treeview.
 
-  @param   ParentNode            as a Pointer
-  @param   iFileIndex            as an Integer
-  @param   iInterfaceObjectIndex as an Integer
-  @param   iMethodIndex          as an Integer
-  @param   LeafType              as a TLeafType
+  @param   ParentNode            as a Pointer as a constant
+  @param   iFileIndex            as an Integer as a constant
+  @param   iInterfaceObjectIndex as an Integer as a constant
+  @param   iMethodIndex          as an Integer as a constant
+  @param   LeafType              as a TLeafType as a constant
   @return  a Pointer
 
 **)
-Function TOISUIUpdater.AddNode(ParentNode: Pointer; iFileIndex, iInterfaceObjectIndex,
-  iMethodIndex: Integer; LeafType: TLeafType): Pointer;
+Function TOISUIUpdater.AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
+  iMethodIndex: Integer; Const LeafType: TLeafType): Pointer;
 
 Var
   NodeData: PTreeData;
@@ -106,11 +103,12 @@ End;
   @precon  vstInterfaces and stbrStatusBar must be valid instances.
   @postcon The class is initialised with references to the treeview and status bar for updates.
 
-  @param   vstInterfaces  as a TVirtualStringtree
-  @param   stbrStatusBar  as a TStatusBar
+  @param   vstInterfaces as a TVirtualStringTree as a constant
+  @param   stbrStatusBar as a TStatusBar as a constant
 
 **)
-Constructor TOISUIUpdater.Create(vstInterfaces: TVirtualStringTree; stbrStatusBar: TStatusBar);
+Constructor TOISUIUpdater.Create(Const vstInterfaces: TVirtualStringTree;
+  Const stbrStatusBar: TStatusBar);
 
 Begin
   FInterfaces := vstInterfaces;
@@ -139,10 +137,10 @@ End;
   @precon  Node must be a valid pointer to a PVirtualNode record.
   @postcon The given node is expanded.
 
-  @param   Node as a Pointer
+  @param   Node as a Pointer as a constant
 
 **)
-Procedure TOISUIUpdater.Expand(Node: Pointer);
+Procedure TOISUIUpdater.Expand(Const Node: Pointer);
 
 Begin
   FInterfaces.Expanded[Node] := True;
@@ -155,17 +153,20 @@ End;
   @precon  None.
   @postcon the status bar panel is updated.
 
-  @param   strText             as a String
-  @param   StatusPanelPosition as a TStatusPanelPositions
+  @param   strText             as a String as a constant
+  @param   StatusPanelPosition as a TStatusPanelPositions as a constant
 
 **)
-Procedure TOISUIUpdater.UpdateStatusPanel(strText: String;
-  StatusPanelPosition: TStatusPanelPositions);
+Procedure TOISUIUpdater.UpdateStatusPanel(Const strText: String;
+  Const StatusPanelPosition: TStatusPanelPositions);
+
+Const
+  iPadding = 5;
 
 Begin
   FStatusBar.Panels[Integer(StatusPanelPosition)].Text := strText;
   FStatusBar.Panels[Integer(StatusPanelPosition)].Width :=
-    5 + FStatusBar.Canvas.TextWidth(strText) + 5;
+    iPadding + FStatusBar.Canvas.TextWidth(strText) + iPadding;
 End;
 
 End.

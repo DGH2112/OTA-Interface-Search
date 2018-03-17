@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    10 Dec 2016
+  @Date    17 Mar 2018
 
 **)
 Unit OTAIntfSearch.InterfaceIndex;
@@ -39,13 +39,13 @@ Type
     FIndex: TList<TIndexInfo>;
     FInterfaceComparer : TInterfaceComparer;
   Strict Protected
-    Procedure AddInterfaceRef(strInterfaceIdent: String; iInterfaceObjectIndex: Integer;
+    Procedure AddInterfaceRef(Const strInterfaceIdent: String; Const iInterfaceObjectIndex,
       iMethodIndex: Integer);
     Procedure SortIndex;
-    Function FindInterface(strInterfaceIdent: String; Var iStartIndex: Integer;
-      Var iEndIndex: Integer): Boolean;
-    Function InterfaceIndex(iIndex : Integer) : Integer;
-    Function MethodIndex(iIndex : Integer) : Integer;
+    Function FindInterface(Const strInterfaceIdent: String; Var iStartIndex,
+      iEndIndex: Integer): Boolean;
+    Function InterfaceIndex(Const iIndex : Integer) : Integer;
+    Function MethodIndex(Const iIndex : Integer) : Integer;
   Public
     Constructor Create;
     Destructor Destroy; Override;
@@ -55,8 +55,6 @@ Implementation
 
 Uses
   SysUtils;
-
-{ TOISInterfaceIndex.TInterfaceComparer }
 
 (**
 
@@ -82,8 +80,6 @@ Begin
     Result := Left.FMethodIndex - Right.FMethodIndex;
 End;
 
-{ TOISInterfaceIndex }
-
 (**
 
   This methods adds an item to the end of the collection.
@@ -91,13 +87,13 @@ End;
   @precon  None.
   @postcon An item is added to the end of the collection.
 
-  @param   strInterfaceIdent     as a String
-  @param   iInterfaceObjectIndex as an Integer
-  @param   iMethodIndex          as an Integer
+  @param   strInterfaceIdent     as a String as a constant
+  @param   iInterfaceObjectIndex as an Integer as a constant
+  @param   iMethodIndex          as an Integer as a constant
 
 **)
-Procedure TOISInterfaceIndex.AddInterfaceRef(strInterfaceIdent: String; iInterfaceObjectIndex,
-  iMethodIndex: Integer);
+Procedure TOISInterfaceIndex.AddInterfaceRef(Const strInterfaceIdent: String;
+  Const iInterfaceObjectIndex, iMethodIndex: Integer);
 
 Var
   recItem : TIndexInfo;
@@ -141,20 +137,20 @@ End;
 
 (**
 
-  This method attempts to find the first occurance of the interface name in the collection. If found
-  the methods returns true and ensure that iStartIndex is the first occurance of the interface
-  reference and iEndIndex is the last.
+  This method attempts to find the first occurance of the interface name in the collection. If found the 
+  methods returns true and ensure that iStartIndex is the first occurance of the interface reference and 
+  iEndIndex is the last.
 
   @precon  None.
   @postcon If found returns true and the start and end index for all the occurances.
 
-  @param   strInterfaceIdent as a String
+  @param   strInterfaceIdent as a String as a constant
   @param   iStartIndex       as an Integer as a reference
   @param   iEndIndex         as an Integer as a reference
   @return  a Boolean
 
 **)
-Function TOISInterfaceIndex.FindInterface(strInterfaceIdent: String; Var iStartIndex,
+Function TOISInterfaceIndex.FindInterface(Const strInterfaceIdent: String; Var iStartIndex,
   iEndIndex: Integer): Boolean;
 
 Var
@@ -196,11 +192,11 @@ End;
   @precon  iIndex must be a valid index.
   @postcon The interface index is returned.
 
-  @param   iIndex as an Integer
+  @param   iIndex as an Integer as a constant
   @return  an Integer
 
 **)
-Function TOISInterfaceIndex.InterfaceIndex(iIndex: Integer): Integer;
+Function TOISInterfaceIndex.InterfaceIndex(Const iIndex: Integer): Integer;
 
 Begin
   Result := FIndex[iIndex].FInterfaceIndex;
@@ -213,11 +209,11 @@ End;
   @precon  iIndex must be a valid index.
   @postcon The method index is returned.
 
-  @param   iIndex as an Integer
+  @param   iIndex as an Integer as a constant
   @return  an Integer
 
 **)
-Function TOISInterfaceIndex.MethodIndex(iIndex: Integer): Integer;
+Function TOISInterfaceIndex.MethodIndex(Const iIndex: Integer): Integer;
 
 Begin
   Result := FIndex[iIndex].FMethodIndex;
