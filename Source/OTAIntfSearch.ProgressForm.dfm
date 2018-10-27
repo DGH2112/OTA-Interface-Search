@@ -2,8 +2,8 @@ object frmProgress: TfrmProgress
   Left = 0
   Top = 0
   BorderStyle = bsNone
-  ClientHeight = 71
-  ClientWidth = 392
+  ClientHeight = 132
+  ClientWidth = 539
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -11,6 +11,7 @@ object frmProgress: TfrmProgress
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
   PixelsPerInch = 96
@@ -18,17 +19,19 @@ object frmProgress: TfrmProgress
   object pnlProgress: TPanel
     Left = 0
     Top = 0
-    Width = 392
-    Height = 71
+    Width = 539
+    Height = 132
     Align = alClient
     BevelInner = bvLowered
     TabOrder = 0
+    ExplicitWidth = 392
+    ExplicitHeight = 71
     object lblFiles: TLabel
       AlignWithMargins = True
       Left = 7
       Top = 7
-      Width = 31
-      Height = 13
+      Width = 525
+      Height = 59
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -36,12 +39,14 @@ object frmProgress: TfrmProgress
       Align = alClient
       Caption = 'lblFiles'
       Layout = tlCenter
+      ExplicitWidth = 31
+      ExplicitHeight = 13
     end
     object pbrProgressBar: TProgressBar
       AlignWithMargins = True
       Left = 7
-      Top = 47
-      Width = 378
+      Top = 76
+      Width = 525
       Height = 17
       Margins.Left = 5
       Margins.Top = 5
@@ -50,6 +55,28 @@ object frmProgress: TfrmProgress
       Align = alBottom
       Smooth = True
       TabOrder = 0
+      ExplicitTop = 47
+      ExplicitWidth = 378
+    end
+    object pnlButtons: TPanel
+      Left = 2
+      Top = 98
+      Width = 535
+      Height = 32
+      Align = alBottom
+      BevelOuter = bvNone
+      TabOrder = 1
+      ExplicitTop = 89
+      object btnCancel: TBitBtn
+        Left = 232
+        Top = 3
+        Width = 75
+        Height = 25
+        Kind = bkCancel
+        NumGlyphs = 2
+        TabOrder = 0
+        OnClick = btnCancelClick
+      end
     end
   end
 end
