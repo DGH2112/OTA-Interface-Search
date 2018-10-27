@@ -6,7 +6,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    21 Oct 2018
+  @Date    27 Oct 2018
 
 **)
 Unit OTAIntfSearch.MainForm;
@@ -142,6 +142,8 @@ Type
     FHasDoneInitialParseAndFilter: Boolean;
     FFilePathList                : TList<TOISFilePathListRec>;  
     FPopulating                  : Boolean;
+    FSearching                   : Boolean;
+    FGenOTACode                  : IOISGenerateOTACode;
   private
     procedure ParseTargetSearch;
   Strict Protected
@@ -713,30 +715,43 @@ Procedure TfrmOTAIntfSearch.GenerateOTACode(Const NodeData: PTreeData);
 
 Const
   strMsg = 'Exception in regular expression "%s":'#13#10'%s';
+  strWarningMsg = 'There is already a search in progress!';
 
 Var
-  GenOTACode: IOISGenerateOTACode;
   C: Char;
 
 Begin
   If pagViews.ActivePage = tabCreationPaths Then
     Begin
-      GenOTACode := TOISGenerateOTACode.Create(FToolsAPIFiles, NodeData.FFileIndex, FOTACodeTree,
-        FProgressManager);
+      If FSearching And Assigned(FGenOTACode) Then
+        Begin
+          MessageDlg(strWarningMsg, mtWarning, [mbOK], 0);
+          Exit;
+        End;
+      FSearching := True;
       Try
-        //: @todo Add the ability to STOP this code is another search is started!
-        GenOTACode.GenerateCode(
-          NodeData.FInterfaceObjectIndex,
-          NodeData.FMethodIndex,
-          NodeData.FLeafType,
-          edtTargetSearch.Text
-        );
-      Except
-        On E: ERegularExpressionError Do
-          MessageDlg(Format(strMsg, [edtTargetSearch.Text, E.Message]), mtError, [mbOK], 0);
+        FGenOTACode := TOISGenerateOTACode.Create(FToolsAPIFiles, NodeData.FFileIndex, FOTACodeTree,
+          FProgressManager);
+        Try
+          Try
+            FGenOTACode.GenerateCode(
+              NodeData.FInterfaceObjectIndex,
+              NodeData.FMethodIndex,
+              NodeData.FLeafType,
+              edtTargetSearch.Text
+            );
+          Except
+            On E: ERegularExpressionError Do
+              MessageDlg(Format(strMsg, [edtTargetSearch.Text, E.Message]), mtError, [mbOK], 0);
+          End;
+        Finally
+          FGenOTACode := Nil;
+        End;
+        C := #13;
+        OTACodeTreeKeyPress(FOTACodeTree, C);
+      Finally
+        FSearching := False
       End;
-      C := #13;
-      OTACodeTreeKeyPress(FOTACodeTree, C);
     End;
 End;
 
