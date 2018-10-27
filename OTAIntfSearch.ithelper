@@ -8,10 +8,11 @@ EnabledVersionInfo=1
 IncludeInProject=1
 CompileWithBRCC32=0
 MajorVer=1
-MinorVer=1
-ReleaseVer=2
-BuildVer=605
+MinorVer=2
+ReleaseVer=0
+BuildVer=608
 ResourceName=OTAIntfSearchITHVerInfo
+SaveModifiedFilesBeforeZipping=0
 
 [Zipping]
 Enabled=1
@@ -22,12 +23,12 @@ ExclusionFiles=
 [VersionInfo]
 CompanyName=Season's Fall Music
 FileDescription=OTAIntfSearch: An application to allow you to search interfaces / classes and method properties for matching text.
-FileVersion=1.1.2.605
+FileVersion=1.2.0.608
 InternalName=OTAIntfSearch
 LegalCopyright=Season's Fall Music
 LegalTrademarks=Season's Fall Music
 OriginalFilename=OTAIntfSearch
 ProductName=OTAIntfSearch
-ProductVersion=1.1b
+ProductVersion=1.2
 Comments=OTAIntfSearch: An application to allow you to search interfaces / classes and method properties for matching text.
 
