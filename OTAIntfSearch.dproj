@@ -3,7 +3,7 @@
         <ProjectGuid>{A60B497E-8C62-4B93-94D5-ACEFB8CA07B7}</ProjectGuid>
         <MainSource>OTAIntfSearch.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
