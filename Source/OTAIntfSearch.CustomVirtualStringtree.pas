@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Mar 2018
+  @Date    21 Oct 2018
 
 **)
 Unit OTAIntfSearch.CustomVirtualStringTree;
@@ -72,7 +72,7 @@ Begin
   Header.Height := 20;
   Header.Options := [hoAutoResize, hoColumnResize, hoDblClickResize, hoVisible, hoAutoSpring];
   Header.Style := hsFlatButtons;
-  HintAnimation := hatNone;
+  //HintAnimation := hatNone;
   HintMode := hmHint;
   LineStyle := lsSolid;
   ParentFont := False;

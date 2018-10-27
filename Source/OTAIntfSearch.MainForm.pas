@@ -6,7 +6,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Mar 2018
+  @Date    27 Oct 2018
 
 **)
 Unit OTAIntfSearch.MainForm;
@@ -14,30 +14,31 @@ Unit OTAIntfSearch.MainForm;
 Interface
 
 Uses
-  Classes,
-  Forms,
-  Dialogs,
-  StdCtrls,
-  ComCtrls,
-  ExtCtrls,
-  Buttons,
-  Controls,
-  Graphics,
-  Windows,
-  VirtualTrees,
-  RegularExpressions,
-  OTAIntfSearch.Interfaces,
-  OTAIntfSearch.Types,
+  System.Classes,
   System.ImageList,
-  OTAIntfSearch.UIUpdater,
+  System.RegularExpressions,
   System.Win.TaskbarCore,
+  System.UITypes,
+  System.Generics.Collections,
+  VCL.Forms,
+  VCL.Dialogs,
+  VCL.StdCtrls,
+  VCL.ComCtrls,
+  VCL.ExtCtrls,
+  VCL.Buttons,
+  VCL.Controls,
+  VCL.Graphics,
   Vcl.Taskbar,
+  Vcl.ImgList, 
+  WinAPI.Windows,
+  VirtualTrees,
   SynEdit,
   SynEditHighlighter,
   SynHighlighterPas,
-  OTAIntfSearch.CustomVirtualStringTree,
-  Vcl.ImgList, 
-  System.UITypes;
+  OTAIntfSearch.Interfaces,
+  OTAIntfSearch.Types,
+  OTAIntfSearch.UIUpdater,
+  OTAIntfSearch.CustomVirtualStringTree;
 
 Type
   (** A class to represent the form interface. **)
@@ -52,7 +53,6 @@ Type
     ilInterfaces: TImageList;
     stbrStatusBar: TStatusBar;
     btnEdit: TBitBtn;
-    lbxFiles: TListBox;
     tbrTaskbar: TTaskbar;
     pagViews: TPageControl;
     splViews: TSplitter;
@@ -67,14 +67,14 @@ Type
     edtTargetSearch: TEdit;
     lblInterfaceMethodFilter: TLabel;
     lblTargetSearchFilter: TLabel;
+    btnDown: TBitBtn;
+    btnUp: TBitBtn;
+    vstFilePaths: TVirtualStringTree;
     Procedure FormCreate(Sender: TObject);
     Procedure FormDestroy(Sender: TObject);
     Procedure FormShow(Sender: TObject);
     Procedure btnAddClick(Sender: TObject);
     Procedure btnDeleteClick(Sender: TObject);
-    Procedure lbxFilesDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState;
-      Var Accept: Boolean);
-    Procedure lbxFilesDragDrop(Sender, Source: TObject; X, Y: Integer);
     Procedure edtFilterChange(Sender: TObject);
     Procedure vstInterfacesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; Var CellText: String);
@@ -95,8 +95,27 @@ Type
     Procedure tmTimerEvent(Sender: TObject);
     Procedure pagViewsChange(Sender: TObject);
     procedure edtTargetSearchChange(Sender: TObject);
-    procedure lbxFilesClick(Sender: TObject);
+    procedure vstFilePathsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+      TextType: TVSTTextType; var CellText: string);
+    procedure vstFilePathsNodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
+    procedure btnDownClick(Sender: TObject);
+    procedure btnUpClick(Sender: TObject);
+    procedure vstFilePathsChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
   Strict Private
+    Type
+      (** A record to describe the information in the File Path List collection. **)
+      TOISFilePathListRec = Record
+        FFilePath : String;
+        FChecked : Boolean;
+        Constructor Create(Const strFilePath : String; Const boolChecked : Boolean);
+      End;
+      (** A record to describe the information stored in the File path List treeview. @nohints **)
+      TOISFilePathTreeNode = Record
+        FFilePathListIndex : Integer;
+      End;
+      (** A pointer to the above record. **)
+      POISFilePathTreeNode = ^TOISFilePathTreeNode;
+  Strict Private  
     Const
       (** a constant to define the time period after typing a reg ex search before the treeview is
           filtered. **)
@@ -121,6 +140,10 @@ Type
     FSearchLastEdited            : Int64;
     FTargetLastEdited            : Int64;
     FHasDoneInitialParseAndFilter: Boolean;
+    FFilePathList                : TList<TOISFilePathListRec>;  
+    FPopulating                  : Boolean;
+    FSearching                   : Boolean;
+    FGenOTACode                  : IOISGenerateOTACode;
   private
     procedure ParseTargetSearch;
   Strict Protected
@@ -137,6 +160,7 @@ Type
     Procedure ParseFilesAndFilter;
     Function  FilterInterfaceTreeView(Const N : PVirtualNode) : Integer;
     Procedure ValidRegEx(Const RegExControl: TEdit);
+    Procedure PopulateFilePathList;
   Public
   End;
 
@@ -186,6 +210,27 @@ Const
   strPathsHeightKey = 'PathsHeight';
   (** An ini section for the file/fodlers to search **)
   strToolsAPIFilesINISection = 'ToolsAPI Files';
+  (** A INI Section name for the check status of the TOols API files / paths **)
+  strToolsAPIFilesCheckINISection = 'ToolsAPI Files Check Status';
+
+(**
+
+  A constructor for the TOISFilePathListRec record.
+
+  @precon  None.
+  @postcon Initialises the record.
+
+  @param   strFilePath as a String as a constant
+  @param   boolChecked as a Boolean as a constant
+
+**)
+Constructor TfrmOTAIntfSearch.TOISFilePathListRec.Create(Const strFilePath: String;
+  Const boolChecked: Boolean);
+  
+Begin
+  FFilePath := strFilePath;
+  FChecked := boolChecked;
+End;
 
 (**
 
@@ -206,7 +251,8 @@ Var
 Begin
   If TfrmBrowseFolder.Execute(Self, strSearchPath) Then
     Begin
-      lbxFiles.Items.Add(strSearchPath);
+      FFilePathList.Add(TOISFilePathListRec.Create(strSearchPath, True));
+      PopulateFilePathList;
       ParseFilesAndFilter;
     End;
 End;
@@ -223,12 +269,38 @@ End;
 **)
 Procedure TfrmOTAIntfSearch.btnDeleteClick(Sender: TObject);
 
+Var
+  NodeData : POISFilePathTreeNode;
+  
 Begin
-  If lbxFiles.ItemIndex > - 1 Then
-    Begin
-      lbxFiles.Items.Delete(lbxFiles.ItemIndex);
-      ParseFilesAndFilter;
-    End;
+  NodeData := vstFilePaths.GetNodeData(vstFilePaths.FocusedNode);
+  FFilePathList.Delete(NodeData.FFilePathListIndex);
+  PopulateFilePathList;
+  ParseFilesAndFilter;
+End;
+
+(**
+
+  This is an on click event handler for the Down button.
+
+  @precon  None.
+  @postcon Moves the selected file path down the list.
+
+  @param   Sender as a TObject
+
+**)
+Procedure TfrmOTAIntfSearch.btnDownClick(Sender: TObject);
+
+Var
+  NodeData : POISFilePathTreeNode;
+  HitInfo: THitInfo;
+  
+Begin
+  NodeData := vstFilePaths.GetNodeData(vstFilePaths.FocusedNode);
+  FFilePathList.Exchange(NodeData.FFilePathListIndex, Succ(NodeData.FFilePathListIndex));
+  vstFilePaths.FocusedNode := vstFilePaths.GetNext(vstFilePaths.FocusedNode);
+  PopulateFilePathList;
+  vstFilePathsNodeClick(Nil, HitInfo);
 End;
 
 (**
@@ -246,18 +318,42 @@ End;
 Procedure TfrmOTAIntfSearch.btnEditClick(Sender: TObject);
 
 Var
-  strSearchPath: String;
+  R : TOISFilePathListRec;
+  NodeData : POISFilePathTreeNode;
 
 Begin
-  If lbxFiles.ItemIndex > - 1 Then
+  NodeData := vstFilePaths.GetNodeData(vstFilePaths.FocusedNode);
+  R := FFilePathList[NodeData.FFilePathListIndex];
+  If TfrmBrowseFolder.Execute(Self, R.FFilePath) Then
     Begin
-      strSearchPath := lbxFiles.Items[lbxFiles.ItemIndex];
-      If TfrmBrowseFolder.Execute(Self, strSearchPath) Then
-        Begin
-          lbxFiles.Items[lbxFiles.ItemIndex] := strSearchPath;
-          ParseFilesAndFilter;
-        End;
+      FFilePathList[NodeData.FFilePathListIndex] := R;
+      PopulateFilePathList;
+      ParseFilesAndFilter;
     End;
+End;
+
+(**
+
+  This is an on click event handler for the Up button.
+
+  @precon  None.
+  @postcon Moves the selected file path up the list.
+
+  @param   Sender as a TObject
+
+**)
+Procedure TfrmOTAIntfSearch.btnUpClick(Sender: TObject);
+
+Var
+  NodeData : POISFilePathTreeNode;
+  HitInfo: THitInfo;
+  
+Begin
+  NodeData := vstFilePaths.GetNodeData(vstFilePaths.FocusedNode);
+  FFilePathList.Exchange(NodeData.FFilePathListIndex, Pred(NodeData.FFilePathListIndex));
+  vstFilePaths.FocusedNode := vstFilePaths.GetPrevious(vstFilePaths.FocusedNode);
+  PopulateFilePathList;
+  vstFilePathsNodeClick(Nil, HitInfo);
 End;
 
 (**
@@ -546,16 +642,21 @@ Procedure TfrmOTAIntfSearch.FormCreate(Sender: TObject);
 Const
   iHintPause = 500;
   iHintHidePause = 30000;
+  
+Var
+  HitInfo: THitInfo;
 
 Begin
+  FFilePathList := TList<TOISFilePathListRec>.Create;
   CreateCustomInterfaceStringTree;
   CreateCustomOTACodeStringTree;
   CreateDependencies;
   UpdateFormTitle;
   LoadSettings;
-  lbxFilesClick(Nil);
+  PopulateFilePathList;
+  vstFilePathsNodeClick(Nil, HitInfo);
   pgcPageControl.ActivePage := tabInterfaces;
-  If lbxFiles.Items.Count = 0 Then
+  If FFilePathList.Count = 0 Then
     pgcPageControl.ActivePage := tabToolsAPIFiles;
   CreateCachedRegExs;
   stbrStatusBar.Canvas.Font.Assign(Font);
@@ -579,6 +680,7 @@ Procedure TfrmOTAIntfSearch.FormDestroy(Sender: TObject);
 
 Begin
   SaveSettings;
+  FFilePathList.Free;
 End;
 
 (**
@@ -613,108 +715,44 @@ Procedure TfrmOTAIntfSearch.GenerateOTACode(Const NodeData: PTreeData);
 
 Const
   strMsg = 'Exception in regular expression "%s":'#13#10'%s';
+  strWarningMsg = 'There is already a search in progress!';
 
 Var
-  GenOTACode: IOISGenerateOTACode;
   C: Char;
 
 Begin
   If pagViews.ActivePage = tabCreationPaths Then
     Begin
-      GenOTACode := TOISGenerateOTACode.Create(FToolsAPIFiles, NodeData.FFileIndex,
-        FOTACodeTree, FProgressManager);
-      Try
-        GenOTACode.GenerateCode(NodeData.FInterfaceObjectIndex, NodeData.FMethodIndex,
-          NodeData.FLeafType, edtTargetSearch.Text);
-      Except
-        On E: ERegularExpressionError Do
-          MessageDlg(Format(strMsg, [edtTargetSearch.Text, E.Message]), mtError, [mbOK], 0);
-      End;
-      C := #13;
-      OTACodeTreeKeyPress(FOTACodeTree, C);
-    End;
-End;
-
-(**
-
-  This is an on select item event handler for the files listbox.
-
-  @precon  None.
-  @postcon Updates the status of the Add, Edit and Delete buttons depending upon what is selected.
-
-  @param   Sender   as a TObject
-
-**)
-Procedure TfrmOTAIntfSearch.lbxFilesClick(Sender: TObject);
-
-Begin
-  btnAdd.Enabled := True;
-  btnEdit.Enabled := lbxFiles.ItemIndex > - 1;
-  btnDelete.Enabled := lbxFiles.ItemIndex > - 1;
-End;
-
-(**
-
-  This is an on drag drop event handler for the files list view.
-
-  @precon  None.
-  @postcon The drag files is moved to before the drop position.
-
-  @param   Sender as a TObject
-  @param   Source as a TObject
-  @param   X      as an Integer
-  @param   Y      as an Integer
-
-**)
-Procedure TfrmOTAIntfSearch.lbxFilesDragDrop(Sender, Source: TObject; X, Y: Integer);
-
-Var
-  iCurIndex, iDropIndex: Integer;
-  P: TPoint;
-  strFileName: String;
-
-Begin
-  iCurIndex := lbxFiles.ItemIndex;
-  P := Point(X, Y);
-  iDropIndex := lbxFiles.ItemAtPos(P, False);
-  If (iCurIndex <> iDropIndex) And (iDropIndex > - 1) Then
-    Begin
-      If iDropIndex > iCurIndex Then
+      If FSearching And Assigned(FGenOTACode) Then
         Begin
-          strFileName := lbxFiles.Items[iCurIndex];
-          lbxFiles.Items.Insert(iDropIndex, strFileName);
-          lbxFiles.Items.Delete(iCurIndex);
-        End
-      Else If iDropIndex < iCurIndex Then
-        Begin
-          strFileName := lbxFiles.Items[iCurIndex];
-          lbxFiles.Items.Delete(iCurIndex);
-          lbxFiles.Items.Insert(iDropIndex, strFileName);
+          MessageDlg(strWarningMsg, mtWarning, [mbOK], 0);
+          Exit;
         End;
-      ParseFilesAndFilter;
+      FSearching := True;
+      Try
+        FGenOTACode := TOISGenerateOTACode.Create(FToolsAPIFiles, NodeData.FFileIndex, FOTACodeTree,
+          FProgressManager);
+        Try
+          Try
+            FGenOTACode.GenerateCode(
+              NodeData.FInterfaceObjectIndex,
+              NodeData.FMethodIndex,
+              NodeData.FLeafType,
+              edtTargetSearch.Text
+            );
+          Except
+            On E: ERegularExpressionError Do
+              MessageDlg(Format(strMsg, [edtTargetSearch.Text, E.Message]), mtError, [mbOK], 0);
+          End;
+        Finally
+          FGenOTACode := Nil;
+        End;
+        C := #13;
+        OTACodeTreeKeyPress(FOTACodeTree, C);
+      Finally
+        FSearching := False
+      End;
     End;
-End;
-
-(**
-
-  This is an on drag over event handler for the files listbox.
-
-  @precon  None.
-  @postcon Accepts the drag if the source and sender are the same and are the file listbox.
-
-  @param   Sender as a TObject
-  @param   Source as a TObject
-  @param   X      as an Integer
-  @param   Y      as an Integer
-  @param   State  as a TDragState
-  @param   Accept as a Boolean as a Reference
-
-**)
-Procedure TfrmOTAIntfSearch.lbxFilesDragOver(Sender, Source: TObject; X, Y: Integer;
-State: TDragState; Var Accept: Boolean);
-
-Begin
-  Accept := (Sender = Source) And (Source = lbxFiles);
 End;
 
 (**
@@ -749,7 +787,10 @@ Begin
   Try
     FIniFile.ReadSection(strToolsAPIFilesINISection, slFiles);
     For iFile := 0 To slFiles.Count - 1 Do
-      lbxFiles.Items.Add(FIniFile.ReadString(strToolsAPIFilesINISection, slFiles[iFile], ''));
+      FFilePathList.Add(TOISFilePathListRec.Create(
+        FIniFile.ReadString(strToolsAPIFilesINISection, slFiles[iFile], ''),
+        FIniFile.ReadBool(strToolsAPIFilesCheckINISection, slFiles[iFile], True)
+      ));
   Finally
     slFiles.Free;
   End;
@@ -838,9 +879,27 @@ End;
 **)
 Procedure TfrmOTAIntfSearch.ParseFilesAndFilter;
 
+Var
+  slFiles : TStringList;
+  Node : PVirtualNode;
+  NodeData : POISFilePathTreeNode;
+  
 Begin
   FOTACodeTree.Clear;
-  FFileParser.ParseFiles(lbxFiles.Items);
+  slFiles := TstringList.Create;
+  Try
+    Node := vstFilePaths.GetFirst();
+    While Assigned(Node) Do
+      Begin
+        NodeData := vstFilePaths.GetNodeData(Node);
+        If FFilePathList[NodeData.FFilePathListIndex].FChecked Then
+          slFiles.Add(FFilePathList[NodeData.FFilePathListIndex].FFilePath);
+        Node := vstFilePaths.GetNext(Node);
+      End;
+    FFileParser.ParseFiles(slFiles);
+  Finally
+    slFiles.Free;
+  End;
   FilterChanged;
 End;
 
@@ -879,6 +938,60 @@ End;
 
 (**
 
+  This method renders the list of file paths in the treeview.
+
+  @precon  None.
+  @postcon The list of file paths are listed in teh treeview.
+
+**)
+Procedure TfrmOTAIntfSearch.PopulateFilePathList;
+
+Var
+  NodeData : POISFilePathTreeNode;
+  iSelected: Integer;
+  iFilePath: Integer;
+  Node: PVirtualNode;
+  
+Begin
+  FPopulating := True;
+  Try
+    vstFilePaths.BeginUpdate;
+    Try
+      iSelected := -1;
+      If Assigned(vstFilePaths.FocusedNode) Then
+        Begin
+          NodeData := vstFilePaths.GetNodeData(vstFilePaths.FocusedNode);
+          iSelected := NodeData.FFilePathListIndex;
+        End;
+      vstFilePaths.Clear;
+      If iSelected > FFilePathList.Count - 1 Then
+        iSelected := FFilePathList.Count - 1;
+      For iFilePath := 0 To FFilePathList.Count - 1 Do
+        Begin
+          Node := vstFilePaths.AddChild(Nil);
+          NodeData := vstFilePaths.GetNodeData(Node);
+          NodeData.FFilePathListIndex := iFilePath;
+          vstFilePaths.CheckType[Node] := ctCheckBox;
+          Case FFilePathList[iFilePath].FChecked Of
+            False: vstFilePaths.CheckState[Node] := csUncheckedNormal;
+            True:  vstFilePaths.CheckState[Node] := csCheckedNormal;  
+          End;
+          If iFilePath = iSelected Then
+            Begin
+              vstFilePaths.FocusedNode := Node;
+              vstFilePaths.Selected[Node] := True;
+            End;
+        End;
+    Finally
+      vstFilePaths.EndUpdate;
+    End;
+  Finally
+    FPopulating := False;
+  End;
+End;
+
+(**
+
   This mehod saves the applications settings to the INI File.
 
   @precon  None.
@@ -904,9 +1017,13 @@ Begin
   FIniFile.WriteInteger(strSetupINISection, strActiveViewIndexKey, pagViews.ActivePageIndex);
   FIniFile.WriteInteger(strSetupINISection, strPathsHeightKey, pnlPath.Height);
   FIniFile.EraseSection(strToolsAPIFilesINISection);
-  For iFile := 0 To lbxFiles.Items.Count - 1 Do
-    FIniFile.WriteString(strToolsAPIFilesINISection, Format(strSearchPath, [iFile]),
-      lbxFiles.Items[iFile]);
+  For iFile := 0 To FFilePathList.Count - 1 Do
+    Begin
+      FIniFile.WriteString(strToolsAPIFilesINISection, Format(strSearchPath, [iFile]),
+        FFilePathList[iFile].FFilePath);
+      FIniFile.WriteBool(strToolsAPIFilesCheckINISection, Format(strSearchPath, [iFile]),
+        FFilePathList[iFile].FChecked);
+    End;
   FIniFile.UpdateFile;
 End;
 
@@ -1065,6 +1182,84 @@ Begin
         RegExControl.Color := clYellow;
       End;
   End;
+End;
+
+(**
+
+  This is an on node checked event handler for the File Paths treeview.
+
+  @precon  None.
+  @postcon The generic collection item is updated with the check status.
+
+  @param   Sender as a TBaseVirtualTree
+  @param   Node   as a PVirtualNode
+
+**)
+Procedure TfrmOTAIntfSearch.vstFilePathsChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
+
+Var
+  NodeData : POISFilePathTreeNode;
+  R: TOISFilePathListRec;
+  
+Begin
+  If Not FPopulating Then
+    Begin
+      NodeData := vstFilePaths.GetNodeData(Node);
+      R := FFilePathList[NodeData.FFilePathListIndex];
+      Case vstFilePaths.CheckState[Node] Of
+        csUncheckedNormal: R.FChecked := False;
+        csCheckedNormal: R.FChecked := True;  
+      End;
+      FFilePathList[NodeData.FFilePathListIndex] := R;
+      ParseFilesAndFilter;
+    End;
+End;
+
+(**
+
+  This is an on get text event handler for the File Path List treeview.
+
+  @precon  None.
+  @postcon Returns the text (file path) to display.
+
+  @param   Sender   as a TBaseVirtualTree
+  @param   Node     as a PVirtualNode
+  @param   Column   as a TColumnIndex
+  @param   TextType as a TVSTTextType
+  @param   CellText as a String as a reference
+
+**)
+Procedure TfrmOTAIntfSearch.vstFilePathsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; TextType: TVSTTextType; Var CellText: String);
+  
+Var
+  NodeData : POISFilePathTreeNode;
+  
+Begin
+  NodeData := vstFilePaths.GetNodeData(Node);
+  CellText := FFilePathList[NodeData.FFilePathListIndex].FFilePath;
+End;
+
+(**
+
+  This is an on node click event handler for the File Path List.
+
+  @precon  None.
+  @postcon Enables or disables the buttons associated with the file path list.
+
+  @param   Sender  as a TBaseVirtualTree
+  @param   HitInfo as a THitInfo as a constant
+
+**)
+Procedure TfrmOTAIntfSearch.vstFilePathsNodeClick(Sender: TBaseVirtualTree; Const HitInfo: THitInfo);
+
+Begin
+  btnDown.Enabled := Assigned(vstFilePaths.FocusedNode) And
+    (vstFilePaths.FocusedNode <> vstFilePaths.GetLast);
+  btnUp.Enabled := Assigned(vstFilePaths.FocusedNode) And
+    (vstFilePaths.FocusedNode <> vstFilePaths.GetFirst);
+  btnDelete.Enabled := Assigned(vstFilePaths.FocusedNode);
+  btnEdit.Enabled := Assigned(vstFilePaths.FocusedNode);
 End;
 
 (**

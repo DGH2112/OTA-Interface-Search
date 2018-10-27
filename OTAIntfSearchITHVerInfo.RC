@@ -1,8 +1,8 @@
 LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US
 
 1 VERSIONINFO LOADONCALL MOVEABLE DISCARDABLE IMPURE
-FILEVERSION 1, 1, 2, 576
-PRODUCTVERSION 1, 1, 2, 576
+FILEVERSION 1, 2, 0, 607
+PRODUCTVERSION 1, 2, 0, 607
 FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_APP
@@ -13,13 +13,13 @@ FILETYPE VFT_APP
     {
       VALUE "CompanyName", "Season's Fall Music\000"
       VALUE "FileDescription", "OTAIntfSearch: An application to allow you to search interfaces / classes and method properties for matching text.\000"
-      VALUE "FileVersion", "1.1.2.576\000"
+      VALUE "FileVersion", "1.2.0.607\000"
       VALUE "InternalName", "OTAIntfSearch\000"
       VALUE "LegalCopyright", "Season's Fall Music\000"
       VALUE "LegalTrademarks", "Season's Fall Music\000"
       VALUE "OriginalFilename", "OTAIntfSearch\000"
       VALUE "ProductName", "OTAIntfSearch\000"
-      VALUE "ProductVersion", "1.1b\000"
+      VALUE "ProductVersion", "1.2\000"
       VALUE "Comments", "OTAIntfSearch: An application to allow you to search interfaces / classes and method properties for matching text.\000"
     }
   }

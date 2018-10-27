@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Mar 2018
+  @Date    21 Oct 2018
 
 **)
 Unit OTAIntfSearch.Interfaces;
@@ -24,6 +24,8 @@ Type
     Procedure WriteInteger(Const strSection, strIdent: String; Const iValue: Integer);
     Function  ReadString(Const strSection, strIdent, strDefault: String) : String;
     Procedure WriteString(Const strSection, strIdent, strValue: String);
+    Function  ReadBool(Const strSection, strIdent: String; Const boolDefault: Boolean) : Boolean;
+    Procedure WriteBool(Const strSection, strIdent: String; Const boolValue: Boolean);
     Procedure EraseSection(Const strSection : String);
     Procedure ReadSection(Const strSection : String; Const slIdents : TStringList);
     Procedure UpdateFile;

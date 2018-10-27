@@ -4,7 +4,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Mar 2018
+  @Date    27 Oct 2018
 
 **)
 Unit OTAIntfSearch.ProgressForm;
@@ -25,7 +25,7 @@ Uses
   Vcl.ExtCtrls,
   System.Win.TaskbarCore,
   Vcl.Taskbar,
-  Vcl.StdCtrls;
+  Vcl.StdCtrls, Vcl.Buttons;
 
 Type
   (** This is a class to represent a simple form for displaying progress. **)
@@ -33,16 +33,19 @@ Type
     pnlProgress: TPanel;
     pbrProgressBar: TProgressBar;
     lblFiles: TLabel;
+    pnlButtons: TPanel;
+    btnCancel: TBitBtn;
+    procedure btnCancelClick(Sender: TObject);
   Strict Private
     Const
       (** this is the interval in milliseconds between form updates. **)
       iUpdateInterval = 25;
   Strict Private
-    { Private declarations }
     FLastupdate : Int64;
+    FCancel     : Boolean;
   Strict Protected
+    Procedure CheckForCancel;
   Public
-    { Public declarations }
     Procedure ShowProgress(Const iTotal : Integer);
     Procedure UpdateProgress(Const iPosition, iTotal : Integer; Const strFileName : String);
     Procedure HideProgress;
@@ -51,6 +54,45 @@ Type
 Implementation
 
 {$R *.dfm}
+
+(**
+
+  This is an on click event handler for the Cancel button.
+
+  @precon  None.
+  @postcon This button notifies the form that the progress should be aborted.
+
+  @param   Sender as a TObject
+
+**)
+Procedure TfrmProgress.btnCancelClick(Sender: TObject);
+
+Begin
+  FCancel := True;
+End;
+
+(**
+
+  This method checks whether the user has pressed the Cancel button and prompt them to confirm.
+  If confirmed the progres is aborted by raising an EAbort exception.
+
+  @precon  None.
+  @postcon Prompts the user to abort the progress and raises an EAbort exception is confirmed.
+
+**)
+Procedure TfrmProgress.CheckForCancel;
+
+ResourceString
+  strMsg = 'Are you sure you want to abort the current search operation?';
+
+Begin
+  If FCancel Then
+    Case MessageDlg(strMsg, mtConfirmation, [mbYes, mbNo, mbCancel], 0) Of
+      mrYes:    Abort; 
+      mrNo:     FCancel := False;
+      mrCancel: FCancel := False;
+    End;
+End;
 
 (**
 
@@ -63,6 +105,7 @@ Implementation
 Procedure TfrmProgress.HideProgress;
 
 Begin
+  FCancel := False;
   Hide;
 End;
 
@@ -79,6 +122,7 @@ End;
 Procedure TfrmProgress.ShowProgress(Const iTotal: Integer);
 
 Begin
+  FCancel := False;
   If Not Visible Then
     Show;
   pbrProgressBar.Position := 0;
@@ -101,6 +145,7 @@ End;
 Procedure TfrmProgress.UpdateProgress(Const iPosition, iTotal: Integer; Const strFileName : String);
 
 Begin
+  CheckForCancel;
   If GetTickCount > FLastUpdate + iUpdateInterval Then
     Begin
       pbrProgressBar.Max := iTotal;

@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Mar 2018
+  @Date    21 Oct 2018
 
 **)
 Unit OTAIntfSearch.MemIniFile;
@@ -31,6 +31,8 @@ Type
     Procedure WriteInteger(Const strSection, strIdent: String; Const iValue: Integer);
     Function  ReadString(Const strSection, strIdent, strDefault: String) : String;
     Procedure WriteString(Const strSection, strIdent, strValue: String);
+    Function  ReadBool(Const strSection, strIdent: String; Const boolDefault: Boolean) : Boolean;
+    Procedure WriteBool(Const strSection, strIdent: String; Const boolValue: Boolean);
     Procedure EraseSection(Const strSection : String);
     Procedure ReadSection(Const strSection : String; Const slIdents : TStringList);
     Procedure UpdateFile;
@@ -129,6 +131,26 @@ End;
 
 (**
 
+  This method reads a boolean from the inifile.
+
+  @precon  None.
+  @postcon The boolnea is read from the ini file if found else the default it returned.
+
+  @param   strSection  as a String as a constant
+  @param   strIdent    as a String as a constant
+  @param   boolDefault as a Boolean as a constant
+  @return  a Boolean
+
+**)
+Function TOISMemIniFile.ReadBool(Const strSection, strIdent: String;
+  Const boolDefault: Boolean): Boolean;
+  
+Begin
+  Result := FMemIniFile.ReadBool(strSection, strIdent, boolDefault);
+End;
+
+(**
+
   This method reads an integer from the inifile.
 
   @precon  None.
@@ -195,6 +217,24 @@ Procedure TOISMemIniFile.UpdateFile;
 
 Begin
   FMemIniFile.UpdateFile;
+End;
+
+(**
+
+  This method writes a boolean to the key and section given.
+
+  @precon  None.
+  @postcon The value is written to the ini file.
+
+  @param   strSection as a String as a constant
+  @param   strIdent   as a String as a constant
+  @param   boolValue  as a Boolean as a constant
+
+**)
+Procedure TOISMemIniFile.WriteBool(Const strSection, strIdent: String; Const boolValue: Boolean);
+
+Begin
+  FMemIniFile.WriteBool(strSection, strIdent, boolValue);
 End;
 
 (**

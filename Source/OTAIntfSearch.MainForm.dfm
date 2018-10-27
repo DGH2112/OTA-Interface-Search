@@ -2,7 +2,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
   AlignWithMargins = True
   Left = 0
   Top = 0
-  ActiveControl = edtFilter
+  ActiveControl = btnAdd
   Caption = 'OTA Interface Search'
   ClientHeight = 565
   ClientWidth = 784
@@ -28,7 +28,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Top = 3
     Width = 778
     Height = 537
-    ActivePage = tabInterfaces
+    ActivePage = tabToolsAPIFiles
     Align = alClient
     ParentShowHint = False
     ShowHint = False
@@ -36,6 +36,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabInterfaces: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Interfaces'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object splViews: TSplitter
         Left = 0
         Top = 301
@@ -60,10 +64,18 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         object tabCodeView: TTabSheet
           AlignWithMargins = True
           Caption = '&Code'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
         object tabCreationPaths: TTabSheet
           AlignWithMargins = True
           Caption = 'Creation &Paths'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object splPaths: TSplitter
             Left = 0
             Top = 114
@@ -182,11 +194,12 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
           Left = 3
           Top = 3
           Width = 376
-          Height = 19
+          Height = 16
           Align = alClient
           AutoSize = False
           Caption = '&Interface and Method Filter:'
           FocusControl = edtFilter
+          ExplicitHeight = 19
         end
         object lblTargetSearchFilter: TLabel
           Left = 382
@@ -203,6 +216,9 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabToolsAPIFiles: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Files'
+      DesignSize = (
+        764
+        500)
       object pnlButtons: TPanel
         AlignWithMargins = True
         Left = 3
@@ -236,7 +252,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
             333333333337733333FF3333333C333330003333333733333777333333333333
             3000333333333333377733333333333333333333333333333333}
           NumGlyphs = 2
-          TabOrder = 0
+          TabOrder = 2
           OnClick = btnAddClick
         end
         object btnDelete: TBitBtn
@@ -260,7 +276,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
             333333377F33333333FF3333C333333330003333733333333777333333333333
             3000333333333333377733333333333333333333333333333333}
           NumGlyphs = 2
-          TabOrder = 2
+          TabOrder = 4
           OnClick = btnDeleteClick
         end
         object btnEdit: TBitBtn
@@ -284,23 +300,73 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
             0FF03333737F37737F373330B00FFFFF0F033337F77F33337F733309030FFFFF
             00333377737FFFFF773333303300000003333337337777777333}
           NumGlyphs = 2
-          TabOrder = 1
+          TabOrder = 3
           OnClick = btnEditClick
         end
+        object btnDown: TBitBtn
+          Left = 359
+          Top = 3
+          Width = 75
+          Height = 25
+          Anchors = [akRight, akBottom]
+          Caption = '&Down'
+          Glyph.Data = {
+            76010000424D7601000000000000760000002800000020000000100000000100
+            04000000000000010000120B0000120B00001000000000000000000000000000
+            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333393333
+            333333333337F3333333333333397333333333333337FF333333333333C94333
+            3333333333737F333333333333C9473333333333337373F3333333333CC94433
+            3333333337F7F7F3333333333CC94473333333333737F73F33333333CCC94443
+            333333337F37F37F33333333CCC94447333333337337F373F333333CCCC94444
+            33333337F337F337F333333CCCC94444733333373337F3373F3333CCCCC94444
+            4333337F3337FF337F3333CCCCC94444473333733F7773FF73F33CCCCC393444
+            443337F37737F773F7F33CCC33393374447337F73337F33737FFCCC333393333
+            444377733337F333777FC3333339333337437333333733333373}
+          NumGlyphs = 2
+          TabOrder = 0
+          OnClick = btnDownClick
+        end
+        object btnUp: TBitBtn
+          Left = 440
+          Top = 3
+          Width = 75
+          Height = 25
+          Anchors = [akRight, akBottom]
+          Caption = '&Up'
+          Glyph.Data = {
+            76010000424D7601000000000000760000002800000020000000100000000100
+            04000000000000010000120B0000120B00001000000000000000000000000000
+            800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+            FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF003C3333339333
+            337437FFF3337F3333F73CCC33339333344437773F337F33377733CCC3339337
+            4447337F73FF7F3F337F33CCCCC3934444433373F7737F773373333CCCCC9444
+            44733337F337773337F3333CCCCC9444443333373F337F3337333333CCCC9444
+            473333337F337F337F333333CCCC94444333333373F37F33733333333CCC9444
+            7333333337F37F37F33333333CCC944433333333373F7F373333333333CC9447
+            33333333337F7F7F3333333333CC94433333333333737F7333333333333C9473
+            33333333333737F333333333333C943333333333333737333333333333339733
+            3333333333337F33333333333333933333333333333373333333}
+          NumGlyphs = 2
+          TabOrder = 1
+          OnClick = btnUpClick
+        end
       end
-      object lbxFiles: TListBox
-        AlignWithMargins = True
+      object vstFilePaths: TVirtualStringTree
         Left = 3
         Top = 3
         Width = 758
-        Height = 458
-        Align = alClient
-        DragMode = dmAutomatic
+        Height = 461
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        Header.AutoSizeIndex = 0
+        Header.MainColumn = -1
         TabOrder = 1
-        OnClick = lbxFilesClick
-        OnDblClick = btnEditClick
-        OnDragDrop = lbxFilesDragDrop
-        OnDragOver = lbxFilesDragOver
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
+        OnChecked = vstFilePathsChecked
+        OnGetText = vstFilePathsGetText
+        OnNodeClick = vstFilePathsNodeClick
+        Columns = <>
       end
     end
   end
@@ -339,7 +405,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Left = 40
     Top = 88
     Bitmap = {
-      494C010106000800940010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010106000800A00010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

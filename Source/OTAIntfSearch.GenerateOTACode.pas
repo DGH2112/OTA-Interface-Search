@@ -5,7 +5,7 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Mar 2018
+  @Date    27 Oct 2018
 
 **)
 Unit OTAIntfSearch.GenerateOTACode;
@@ -33,13 +33,11 @@ Type
     FNodeCount            : Integer;
     FTargetSearchRegEx    : TRegEx;
     FTargeting            : Boolean;
+    FCancelSearch         : Boolean;
   Strict Protected
-    Procedure GenerateCode(Const iInterfaceObjectIndex, iMethodIndex : Integer;
-      Const LeafType : TLeafType; Const strTargetSearch : String);
+    // General Methods
     Function GetIdentifier(Const iInterfaceObjectIndex, iMethodIndex : Integer;
       Const LeafType : TLeafType) : String;
-    Function AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
-      iMethodIndex : Integer; Const LeafType: TLeafType): Pointer;
     Function AddInterface(Const ParentNode: Pointer; Const iInterfaceObjectIndex : Integer) : Pointer;
     Function AddMethod(Const ParentNode: Pointer; Const iInterfaceObjectIndex,
       iMethodIndex : Integer) : Pointer;
@@ -56,6 +54,11 @@ Type
     Procedure BuildIndex;
     Procedure HideNonTargettedNodes(Const StartingNode : PVirtualNode);
     Function  IsTarget(Const Node : PVirtualNode) : Boolean;
+    // IOISGenerateOTACode
+    Procedure GenerateCode(Const iInterfaceObjectIndex, iMethodIndex : Integer;
+      Const LeafType : TLeafType; Const strTargetSearch : String);
+    Function AddNode(Const ParentNode: Pointer; Const iFileIndex, iInterfaceObjectIndex,
+      iMethodIndex : Integer; Const LeafType: TLeafType): Pointer;
   Public
     Constructor Create(Const OISToolsAPIFiles : IOISToolsAPIFiles; Const iFileIndex : Integer;
       Const vstOTACodeTree : TVirtualStringTree; Const OISProgressManager : IOISProgressManager);
@@ -252,6 +255,7 @@ Begin
   FOTACodeTree := vstOTACodeTree;
   FOISProgressManager := OISProgressManager;
   FNodeCount := 0;
+  FCancelSearch := False;
 End;
 
 (**
