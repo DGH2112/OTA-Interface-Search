@@ -2,9 +2,9 @@
 
 Author: David Hoyle
 
-Version: 1.1
+Version: 1.2
 
-Date: 17 Dec 2016
+Date: 27 Oct 2018
 
 Web Page: http://www.davidghoyle.co.uk/WordPress/?page_id=1481
 
@@ -17,5 +17,5 @@ interfaces, methods and properties and to aid the user in finding paths to vario
 method and properties from different aspects of the API.
 
 In order to compile the software yourself you will need the following components:
- * Virtual Treeview;
+ * Virtual Treeview V6.x or above;
  * SynEdit.
