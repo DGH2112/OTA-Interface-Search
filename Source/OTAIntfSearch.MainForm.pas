@@ -148,7 +148,9 @@ Type
       POISFilePathTreeNode = ^TOISFilePathTreeNode;
     Const
       (** Menu index for the Options menu in the System Menu. **)
-      iMenuID = 170;
+      iOptionsMenuID = 170;
+      (** Menu index for the About menu in the System Menu. **)
+      iAboutMenuID = 171;
   Strict Private
     Const
       (** a constant to define the time period after typing a reg ex search before the treeview is
@@ -211,7 +213,9 @@ Implementation
 
 Uses
   CodeSiteLogging,
+  {$IFDEF EurekaLog}
   EBase,
+  {$ENDIF}
   System.SysUtils,
   System.RegularExpressionsCore,
   System.Types,
@@ -224,7 +228,8 @@ Uses
   OTAIntfSearch.GenerateOTACode,
   OTAIntfSearch.Constants,
   OTAIntfSearch.Functions,
-  OTAIntfSearch.Options;
+  OTAIntfSearch.Options,
+  OTAIntfSearch.AboutDlg;
 
 Const
   (** A constant for the ini section for storing general settings. **)
@@ -333,6 +338,7 @@ Procedure TfrmOTAIntfSearch.AddSystemMenu;
 
 ResourceString
   strOptionsMenuCaption = '&Options...';
+  strAboutMenuCaption = '&About...';
 
 Var
   SysMenu : HMENU;
@@ -340,7 +346,8 @@ Var
 Begin
   SysMenu := GetSystemMenu(Handle, False);
   AppendMenu(SysMenu, MF_SEPARATOR, 0, '');
-  AppendMenu(SysMenu, MF_STRING, iMenuID, PChar(strOptionsMenuCaption));
+  AppendMenu(SysMenu, MF_STRING, iOptionsMenuID, PChar(strOptionsMenuCaption));
+  AppendMenu(SysMenu, MF_STRING, iAboutMenuID, PChar(strAboutMenuCaption));
   FSysOptionsMenuInstalled := True;
 End;
 
@@ -1265,48 +1272,26 @@ End;
 **)
 Procedure TfrmOTAIntfSearch.UpdateFormTitle;
 
-Type
-  TBuildRec = Record
-    FMajor, FMinor, FBugFix, FBuild: Word;
-  End;
-  
 Const
   strBuild = '%s %d.%d%s (Build %d.%d.%d.%d)';
-  strBugFix = ' abcdefghijklmnopqrstuvwxyz';
-  iRightShift = 16;
-  iMask = $FFFF;
 
 Var
-  VerInfoSize: DWORD;
-  VerInfo: Pointer;
-  VerValueSize: DWORD;
-  VerValue: PVSFixedFileInfo;
-  Dummy: DWORD;
-  BuildRec : TBuildRec;
+  recBuildInfo : TOISBuildInfo;
 
 Begin
-  VerInfoSize := GetFileVersionInfoSize(PChar(ParamStr(0)), Dummy);
-  If VerInfoSize <> 0 Then
-    Begin
-      GetMem(VerInfo, VerInfoSize);
-      GetFileVersionInfo(PChar(ParamStr(0)), 0, VerInfoSize, VerInfo);
-      VerQueryValue(VerInfo, '\', Pointer(VerValue), VerValueSize);
-      BuildRec.FMajor := VerValue^.dwFileVersionMS Shr iRightShift;
-      BuildRec.FMinor := VerValue^.dwFileVersionMS And iMask;
-      BuildRec.FBugFix := VerValue^.dwFileVersionLS Shr iRightShift;
-      BuildRec.FBuild := VerValue^.dwFileVersionLS And iMask;
-      Caption := Format(strBuild, [
-        Application.Title,
-        BuildRec.FMajor,
-        BuildRec.FMinor,
-        strBugFix[Succ(BuildRec.FBugFix)],
-        BuildRec.FMajor,
-        BuildRec.FMinor,
-        BuildRec.FBugFix,
-        BuildRec.FBuild
-      ]);
-      FreeMem(VerInfo, VerInfoSize);
-    End;
+  GetBuildData(recBuildInfo);
+  Caption := Format(
+    strBuild, [
+      Application.Title,
+      recBuildInfo.FMajor,
+      recBuildInfo.FMinor,
+      strBugFix[Succ(recBuildInfo.FBugFix)],
+      recBuildInfo.FMajor,
+      recBuildInfo.FMinor,
+      recBuildInfo.FBugFix,
+      recBuildInfo.FBuild
+    ]
+  );
 End;
 
 (**
@@ -1798,12 +1783,13 @@ Procedure TfrmOTAIntfSearch.WMSysCommand(Var Message: TWMSysCommand);
 Begin
   Inherited;
   Case Message.CmdType Of
-    iMenuID:
+    iOptionsMenuID:
       Begin
         FOptions.VCLTheme := StyleServices.Name;
         If TfrmOTAOptions.Execute(FOptions) Then
           ApplyTheming;
       End;
+    iAboutMenuID: TfrmOISAbout.Execute;
   End;
 End;
 

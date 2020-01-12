@@ -36,6 +36,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabInterfaces: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Interfaces'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object splViews: TSplitter
         Left = 0
         Top = 301
@@ -61,6 +65,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         object tabCodeView: TTabSheet
           AlignWithMargins = True
           Caption = '&Code'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object CodeView: TSynEdit
             Left = 0
             Top = 0
@@ -243,6 +251,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabToolsAPIFiles: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Files'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         764
         500)

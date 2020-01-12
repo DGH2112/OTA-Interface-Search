@@ -80,7 +80,8 @@ uses
   OTAIntfSearch.InterfaceIndex in 'Source\OTAIntfSearch.InterfaceIndex.pas',
   OTAIntfSearch.OTAServicePaths in 'Source\OTAIntfSearch.OTAServicePaths.pas',
   OTAIntfSearch.OptionsForm in 'Source\OTAIntfSearch.OptionsForm.pas' {frmOTAOptions},
-  OTAIntfSearch.Options in 'Source\OTAIntfSearch.Options.pas';
+  OTAIntfSearch.Options in 'Source\OTAIntfSearch.Options.pas',
+  OTAIntfSearch.AboutDlg in 'Source\OTAIntfSearch.AboutDlg.pas' {frmOISAbout};
 
 {$R *.RES}
 
