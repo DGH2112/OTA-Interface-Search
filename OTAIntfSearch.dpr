@@ -7,7 +7,9 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Dec 2016
+  @Date    12 Jan 2020
+
+  @nocheck HardCodedString
 
 **)
 Program OTAIntfSearch;
@@ -18,7 +20,24 @@ Program OTAIntfSearch;
 {$WARN UNIT_PLATFORM OFF}
 
 uses
-  Forms,
+  {$IFDEF EurekaLog}
+  EMemLeaks,
+  EResLeaks,
+  ESendMailMAPI,
+  ESendMailSMAPI,
+  EDialogWinAPIMSClassic,
+  EDialogWinAPIEurekaLogDetailed,
+  EDialogWinAPIStepsToReproduce,
+  EDebugExports,
+  EDebugJCL,
+  EFixSafeCallException,
+  EMapWin32,
+  EAppVCL,
+  ExceptionLog7,
+  {$ENDIF EurekaLog}
+  Vcl.Forms,
+  Vcl.Themes,
+  Vcl.Styles,
   OTAIntfSearch.Interfaces in 'Source\OTAIntfSearch.Interfaces.pas',
   OTAIntfSearch.MemIniFile in 'Source\OTAIntfSearch.MemIniFile.pas',
   OTAIntfSearch.ToolsAPIFile in 'Source\OTAIntfSearch.ToolsAPIFile.pas',
@@ -37,7 +56,9 @@ uses
   OTAIntfSearch.Constants in 'Source\OTAIntfSearch.Constants.pas',
   OTAIntfSearch.Functions in 'Source\OTAIntfSearch.Functions.pas',
   OTAIntfSearch.InterfaceIndex in 'Source\OTAIntfSearch.InterfaceIndex.pas',
-  OTAIntfSearch.OTAServicePaths in 'Source\OTAIntfSearch.OTAServicePaths.pas';
+  OTAIntfSearch.OTAServicePaths in 'Source\OTAIntfSearch.OTAServicePaths.pas',
+  OTAIntfSearch.OptionsForm in 'Source\OTAIntfSearch.OptionsForm.pas' {frmOTAOptions},
+  OTAIntfSearch.Options in 'Source\OTAIntfSearch.Options.pas';
 
 {$R *.RES}
 
@@ -48,3 +69,5 @@ Begin
   Application.CreateForm(TfrmOTAIntfSearch, frmOTAIntfSearch);
   Application.Run;
 End.
+
+
