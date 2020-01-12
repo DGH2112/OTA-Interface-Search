@@ -36,15 +36,74 @@ Interface
 Uses
   OTAIntfSearch.Types;
 
+Type
+  (** A record to describe the applications build information. **)
+  TOISBuildInfo = Record
+    FMajor, FMinor, FBugFix, FBuild: Word;
+  End;
+
+Const  
+  (** A constant string for the bug fix letter. **)
+  strBugFix = ' abcdefghijklmnopqrstuvwxyz';
+  
+  Procedure GetBuildData(Var recBuildData : TOISBuildInfo);
   Function GetCodeIdentifier(Const strCode : String; Const LeafType : TLeafType) : String;
 
 Implementation
 
 Uses
-  //CodeSiteLogging,
-  SysUtils,
-  RegularExpressions,
+  {$IFDEF DEBUG}
+  CodeSiteLogging,
+  {$ENDIF}
+  System.SysUtils,
+  System.RegularExpressions,
+  WinAPI.Windows,
   OTAIntfSearch.Constants;
+
+(**
+
+  This method rerturns the build information for the application.
+
+  @precon  None.
+  @postcon The applications build information is returned.
+
+  @param   recBuildData as a TOISBuildInfo as a reference
+
+**)
+Procedure GetBuildData(Var recBuildData : TOISBuildInfo);
+
+Const
+  iRightShift = 16;
+  iMask = $FFFF;
+  
+ResourceString
+  strVerInfo = 'The application does not contain any version information!';
+
+Var
+  VerInfoSize: DWORD;
+  VerInfo: Pointer;
+  VerValueSize: DWORD;
+  VerValue: PVSFixedFileInfo;
+  Dummy: DWORD;
+
+Begin
+  VerInfoSize := GetFileVersionInfoSize(PChar(ParamStr(0)), Dummy);
+  If VerInfoSize <> 0 Then
+    Begin
+      GetMem(VerInfo, VerInfoSize);
+      Try
+        GetFileVersionInfo(PChar(ParamStr(0)), 0, VerInfoSize, VerInfo);
+        VerQueryValue(VerInfo, '\', Pointer(VerValue), VerValueSize);
+        recBuildData.FMajor := VerValue^.dwFileVersionMS Shr iRightShift;
+        recBuildData.FMinor := VerValue^.dwFileVersionMS And iMask;
+        recBuildData.FBugFix := VerValue^.dwFileVersionLS Shr iRightShift;
+        recBuildData.FBuild := VerValue^.dwFileVersionLS And iMask;
+      Finally
+        FreeMem(VerInfo, VerInfoSize);
+      End;
+    End Else
+      Raise Exception.Create(strVerInfo);
+End;
 
 (**
 

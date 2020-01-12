@@ -152,6 +152,10 @@
             <Form>frmOTAOptions</Form>
         </DCCReference>
         <DCCReference Include="Source\OTAIntfSearch.Options.pas"/>
+        <DCCReference Include="Source\OTAIntfSearch.AboutDlg.pas">
+            <Form>frmOISAbout</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <None Include="License.md"/>
         <None Include="README.md"/>
         <BuildConfiguration Include="Debug">
