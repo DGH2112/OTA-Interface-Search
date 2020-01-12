@@ -99,6 +99,10 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         object tabCreationPaths: TTabSheet
           AlignWithMargins = True
           Caption = 'Creation &Paths'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object splPaths: TSplitter
             Left = 0
             Top = 114
@@ -123,14 +127,12 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
               AlignWithMargins = True
               Left = 5
               Top = 5
-              Width = 734
-              Height = 20
+              Width = 4
+              Height = 16
               Align = alClient
               Alignment = taCenter
               Layout = tlCenter
               WordWrap = True
-              ExplicitWidth = 4
-              ExplicitHeight = 16
             end
           end
         end

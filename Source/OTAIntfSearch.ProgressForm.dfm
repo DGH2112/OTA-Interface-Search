@@ -24,8 +24,6 @@ object frmProgress: TfrmProgress
     Align = alClient
     BevelInner = bvLowered
     TabOrder = 0
-    ExplicitWidth = 392
-    ExplicitHeight = 71
     object lblFiles: TLabel
       AlignWithMargins = True
       Left = 7
@@ -55,8 +53,6 @@ object frmProgress: TfrmProgress
       Align = alBottom
       Smooth = True
       TabOrder = 0
-      ExplicitTop = 47
-      ExplicitWidth = 378
     end
     object pnlButtons: TPanel
       Left = 2
@@ -66,7 +62,6 @@ object frmProgress: TfrmProgress
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 89
       object btnCancel: TBitBtn
         Left = 232
         Top = 3
