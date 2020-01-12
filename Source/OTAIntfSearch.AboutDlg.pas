@@ -88,7 +88,7 @@ ResourceString
   {$IFDEF DEBUG}
   strOTAIntfSearchCaption = 'Open Tools API Interface Search %d.%d%s (DEBUG Build %d.%d.%d.%d)';
   {$ELSE}
-  strOTAIntfSearchCaption := 'Open Tools API Interface Search %d.%d%s (Build %d.%d.%d.%d)';
+  strOTAIntfSearchCaption = 'Open Tools API Interface Search %d.%d%s (Build %d.%d.%d.%d)';
   {$ENDIF}
 
 Const

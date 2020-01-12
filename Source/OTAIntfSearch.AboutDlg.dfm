@@ -55,7 +55,6 @@ object frmOISAbout: TfrmOISAbout
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
-    ExplicitLeft = -31
     ExplicitWidth = 40
   end
   object lblExpertMgr: TLabel
@@ -160,9 +159,5 @@ object frmOISAbout: TfrmOISAbout
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 1
-    ExplicitLeft = -31
-    ExplicitTop = 55
-    ExplicitWidth = 509
-    ExplicitHeight = 269
   end
 end
