@@ -23,7 +23,6 @@ object frmOTAOptions: TfrmOTAOptions
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 132
     DesignSize = (
       381
       253)
@@ -94,7 +93,6 @@ object frmOTAOptions: TfrmOTAOptions
       Kind = bkOK
       NumGlyphs = 2
       TabOrder = 9
-      ExplicitTop = 99
     end
     object btnCancel: TBitBtn
       Left = 298
@@ -105,7 +103,6 @@ object frmOTAOptions: TfrmOTAOptions
       Kind = bkCancel
       NumGlyphs = 2
       TabOrder = 10
-      ExplicitTop = 99
     end
     object cbxColour: TColorBox
       Left = 135
@@ -145,10 +142,10 @@ object frmOTAOptions: TfrmOTAOptions
       Anchors = [akLeft, akTop, akRight]
       ReadOnly = True
       TabOrder = 2
-      Text = '0'
+      Text = '8'
     end
     object udTreeFontSize: TUpDown
-      Left = 356
+      Left = 350
       Top = 68
       Width = 16
       Height = 24
@@ -156,6 +153,7 @@ object frmOTAOptions: TfrmOTAOptions
       Associate = edtTreeFontSize
       Min = 8
       Max = 18
+      Position = 8
       TabOrder = 3
     end
     object edtEditorFontSize: TEdit
@@ -167,6 +165,7 @@ object frmOTAOptions: TfrmOTAOptions
       Anchors = [akLeft, akTop, akRight]
       ReadOnly = True
       TabOrder = 5
+      Text = '8'
     end
     object udEditorFontSize: TUpDown
       Left = 349
@@ -177,6 +176,7 @@ object frmOTAOptions: TfrmOTAOptions
       Associate = edtEditorFontSize
       Min = 8
       Max = 18
+      Position = 8
       TabOrder = 6
     end
     object cbxEditorFontName: TComboBox
