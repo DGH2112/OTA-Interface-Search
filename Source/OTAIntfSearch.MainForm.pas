@@ -4,9 +4,11 @@
   tp search for Open Tools API (OTA) classes and interfaces / methods and properties across multiple
   search directories.
 
+  @todo    Add Full Expand / Collapse buttons for the interface search.
+
   @Author  David Hoyle
   @Version 1.0
-  @Date    27 Oct 2018
+  @Date    12 Jan 2020
 
 **)
 Unit OTAIntfSearch.MainForm;
@@ -31,14 +33,17 @@ Uses
   Vcl.Taskbar,
   Vcl.ImgList, 
   WinAPI.Windows,
+  WinAPI.Messages,
   VirtualTrees,
   SynEdit,
+  SynEditCodeFolding,
   SynEditHighlighter,
   SynHighlighterPas,
   OTAIntfSearch.Interfaces,
   OTAIntfSearch.Types,
   OTAIntfSearch.UIUpdater,
-  OTAIntfSearch.CustomVirtualStringTree;
+  OTAIntfSearch.CustomVirtualStringTree,
+  OTAIntfSearch.OptionsForm, System.Actions, Vcl.ActnList;
 
 Type
   (** A class to represent the form interface. **)
@@ -70,6 +75,12 @@ Type
     btnDown: TBitBtn;
     btnUp: TBitBtn;
     vstFilePaths: TVirtualStringTree;
+    CodeView: TSynEdit;
+    alAppActions: TActionList;
+    actFileExit: TAction;
+    actToolsTestEurekalog: TAction;
+    procedure actFileExitExecute(Sender: TObject);
+    procedure actToolsTestEurekalogExecute(Sender: TObject);
     Procedure FormCreate(Sender: TObject);
     Procedure FormDestroy(Sender: TObject);
     Procedure FormShow(Sender: TObject);
@@ -115,7 +126,10 @@ Type
       End;
       (** A pointer to the above record. **)
       POISFilePathTreeNode = ^TOISFilePathTreeNode;
-  Strict Private  
+    Const
+      (** Menu index for the Options menu in the System Menu. **)
+      iMenuID = 170;
+  Strict Private
     Const
       (** a constant to define the time period after typing a reg ex search before the treeview is
           filtered. **)
@@ -136,7 +150,6 @@ Type
     FProcedureRegEx              : TRegEx;
     FFunctionRegEx               : TRegEx;
     FPropertyRegEx               : TRegEx;
-    FCodeView                    : TSynEdit;
     FSearchLastEdited            : Int64;
     FTargetLastEdited            : Int64;
     FHasDoneInitialParseAndFilter: Boolean;
@@ -144,13 +157,12 @@ Type
     FPopulating                  : Boolean;
     FSearching                   : Boolean;
     FGenOTACode                  : IOISGenerateOTACode;
-  private
-    procedure ParseTargetSearch;
+    FSysOptionsMenuInstalled     : Boolean;
+    FOptions                     : IOISOTAOptions;
   Strict Protected
     Procedure CreateCustomInterfaceStringTree;
     Procedure CreateCustomOTACodeStringTree;
     Procedure CreateDependencies;
-    Procedure CreateCodeViewer;
     Procedure CreateCachedRegExs;
     Procedure LoadSettings;
     Procedure SaveSettings;
@@ -161,6 +173,10 @@ Type
     Function  FilterInterfaceTreeView(Const N : PVirtualNode) : Integer;
     Procedure ValidRegEx(Const RegExControl: TEdit);
     Procedure PopulateFilePathList;
+    Procedure ParseTargetSearch;
+    Procedure AddSystemMenu;
+    Procedure WMSysCommand(Var Message : TWMSysCommand); Message WM_SYSCOMMAND;
+    Procedure ApplyTheming;
   Public
   End;
 
@@ -175,9 +191,11 @@ Implementation
 
 Uses
   CodeSiteLogging,
-  SysUtils,
-  RegularExpressionsCore,
-  Types,
+  EBase,
+  System.SysUtils,
+  System.RegularExpressionsCore,
+  System.Types,
+  VCL.Themes,
   OTAIntfSearch.MemIniFile,
   OTAIntfSearch.ToolsAPIFiles,
   OTAIntfSearch.BrowseFolderForm,
@@ -185,7 +203,8 @@ Uses
   OTAIntfSearch.ProgressManager,
   OTAIntfSearch.GenerateOTACode,
   OTAIntfSearch.Constants,
-  OTAIntfSearch.Functions;
+  OTAIntfSearch.Functions,
+  OTAIntfSearch.Options;
 
 Const
   (** A constant for the ini section for storing general settings. **)
@@ -230,6 +249,137 @@ Constructor TfrmOTAIntfSearch.TOISFilePathListRec.Create(Const strFilePath: Stri
 Begin
   FFilePath := strFilePath;
   FChecked := boolChecked;
+End;
+
+(**
+
+  This is an on execute event handler for the File Exit action.
+
+  @precon  None.
+  @postcon Closes the application.
+
+  @param   Sender as a TObject
+
+**)
+Procedure TfrmOTAIntfSearch.actFileExitExecute(Sender: TObject);
+
+Begin
+  Close;
+End;
+
+(**
+
+  This is an on execute event handler for the Test Eurekalog action.
+
+  @precon  None.
+  @postcon Displays the status of Eurekalog and optionsal raises a test exception.
+
+  @param   Sender as a TObject
+
+**)
+Procedure TfrmOTAIntfSearch.actToolsTestEurekalogExecute(Sender: TObject);
+
+ResourceString
+  strMsg =
+    'EurekaLog Installed: %s'#13#10 +
+    'EurekaLog Activated: %s'#13#10 +
+    #13#10 +
+    'Are you sure you want to generate a test exception?';
+  strThisTestException = 'This is a test Exception which should be intercepted by EurekaLog!';
+
+Const
+  astrYesNo : Array[False..True] Of String = ('No', 'Yes');
+  
+Begin
+  {$IFDEF EurekaLog}
+  If MessageDlg(
+    Format(strMsg, [
+      astrYesNo[IsEurekaLogInstalled],
+      astrYesNo[IsEurekaLogActive]
+    ]), mtConfirmation, [mbYes, mbNo], 0) = mrYes Then
+    Raise Exception.Create(strThisTestException);
+  {$ENDIF EurekaLog}
+End;
+
+(**
+
+  This method adds the custom menus to the system menu.
+
+  @precon  None.
+  @postcon The custom menu items are added to the system menu.
+
+**)
+Procedure TfrmOTAIntfSearch.AddSystemMenu;
+
+ResourceString
+  strOptionsMenuCaption = '&Options...';
+
+Var
+  SysMenu : HMENU;
+
+Begin
+  SysMenu := GetSystemMenu(Handle, False);
+  AppendMenu(SysMenu, MF_SEPARATOR, 0, '');
+  AppendMenu(SysMenu, MF_STRING, iMenuID, PChar(strOptionsMenuCaption));
+  FSysOptionsMenuInstalled := True;
+End;
+
+(**
+
+  This method apply the theming and application options to the application, treeviews, code editor and
+  syntax highlighter.
+
+  @precon  None.
+  @postcon The application and the custom controls are themed.
+
+**)
+Procedure TfrmOTAIntfSearch.ApplyTheming;
+
+Const
+  iPadding = 1;
+  strTextHeightTest = 'Wg';
+
+Begin
+  If FOptions.VCLTheme <> StyleServices.Name Then
+    Begin
+      TStyleManager.TrySetStyle(FOptions.VCLTheme);
+      FSysOptionsMenuInstalled := False;
+    End;
+  FInterfacesTree.Font.Name := FOptions.TreeFontName;
+  FInterfacesTree.Font.Size := FOptions.TreeFontSize;
+  FInterfacesTree.Canvas.Font.Name := FOptions.TreeFontName;
+  FInterfacesTree.Canvas.Font.Size := FOptions.TreeFontSize;
+  FInterfacesTree.DefaultNodeHeight := iPadding + FInterfacesTree.Canvas.TextHeight(strTextHeightTest) +
+    iPadding;
+  FInterfacesTree.Invalidate;
+  FOTACodeTree.Font.Name := FOptions.TreeFontName;
+  FOTACodeTree.Font.Size := FOptions.TreeFontSize;
+  FOTACodeTree.Canvas.Font.Name := FOptions.TreeFontName;
+  FOTACodeTree.Canvas.Font.Size := FOptions.TreeFontSize;
+  FOTACodeTree.DefaultNodeHeight := iPadding + FOTACodeTree.Canvas.TextHeight(strTextHeightTest) +
+    iPadding;
+  FOTACodeTree.Invalidate;
+  CodeView.Color := StyleServices.GetSystemColor(clWindow);
+  CodeView.Font.Color := StyleServices.GetSystemColor(clWindowText);
+  CodeView.ActiveLineColor := StyleServices.GetSystemColor(FOptions.Colour[ocCurrentLineHighlight]);
+  CodeView.Gutter.BorderColor := StyleServices.GetSystemColor(clWindow);
+  CodeView.Gutter.Color := StyleServices.GetSystemColor(clBtnFace);
+  CodeView.Gutter.Font.Color := StyleServices.GetSystemColor(clWindowText);
+  CodeView.Gutter.GradientStartColor := StyleServices.GetSystemColor(clBtnFace);
+  CodeView.Gutter.GradientEndColor := StyleServices.GetSystemColor(clWindow);
+  CodeView.Font.Name := FOptions.EditorFontName;
+  CodeView.Font.Size := FOptions.EditorFontSize;
+  synPascal.AsmAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocAssembler]);
+  synPascal.CharAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocCharacter]);
+  synPascal.CommentAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocComment]);
+  synPascal.DirectiveAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocDirective]);
+  synPascal.FloatAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocNumber]);
+  synPascal.HexAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocNumber]);
+  synPascal.IdentifierAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocIdentifier]);
+  synPascal.KeyAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocReservedWord]);
+  synPascal.NumberAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocNumber]);
+  synPascal.StringAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocString]);
+  synPascal.SymbolAttri.Foreground := StyleServices.GetSystemColor(FOptions.Colour[ocSymbol]);
 End;
 
 (**
@@ -373,34 +523,6 @@ Begin
     [roIgnoreCase, roCompiled, roSingleLine]);
   FFunctionRegEx := TRegEx.Create(strFunctionStartRegEx, [roIgnoreCase, roCompiled, roSingleLine]);
   FPropertyRegEx := TRegEx.Create(strPropertyStartRegEx, [roIgnoreCase, roCompiled, roSingleLine]);
-End;
-
-(**
-
-  This method creates a synedit control for viewing the code when you select a line of code. I`ve
-  done this as the current release of the synedit controls seems to have problem displaying in the
-  IDE design (shows then vanishes) and has made the IDE unstable inthe past.
-
-  @precon  None.
-  @postcon The synedit control is created and installed into the interface.
-
-**)
-Procedure TfrmOTAIntfSearch.CreateCodeViewer;
-
-Const
-  strFontName = 'Consolas';
-  iFontSize = 11;
-
-Begin
-  FCodeView := TSynEdit.Create(Self);
-  FCodeView.Parent := tabCodeView;
-  FCodeView.Align := alClient;
-  FCodeView.ReadOnly := True;
-  FCodeView.Highlighter := synPascal;
-  FCodeView.Font.Name := strFontName;
-  FCodeView.Font.Size := iFontSize;
-  FCodeView.ActiveLineColor := clSkyBlue;
-  FCodeView.HideSelection := False;
 End;
 
 (**
@@ -647,10 +769,14 @@ Var
   HitInfo: THitInfo;
 
 Begin
+  If Assigned(TStyleManager.Engine) Then
+    TStyleManager.Engine.RegisterStyleHook(TSynEdit, TMemoStyleHook);
   FFilePathList := TList<TOISFilePathListRec>.Create;
   CreateCustomInterfaceStringTree;
   CreateCustomOTACodeStringTree;
   CreateDependencies;
+  FOptions := TOISOTAOptions.Create(FINIFile);
+  ApplyTheming;
   UpdateFormTitle;
   LoadSettings;
   PopulateFilePathList;
@@ -663,7 +789,6 @@ Begin
   Application.HintColor := clWhite;
   Application.HintPause := iHintPause;
   Application.HintHidePause := iHintHidePause;
-  CreateCodeViewer;
 End;
 
 (**
@@ -681,6 +806,10 @@ Procedure TfrmOTAIntfSearch.FormDestroy(Sender: TObject);
 Begin
   SaveSettings;
   FFilePathList.Free;
+  {: @bug For some reason with EurekaLog enabled the below line raises an exception
+  If Assigned(TStyleManager.Engine) Then
+    TStyleManager.Engine.UnregisterStyleHook(TSynEdit, TMemoStyleHook);
+  }
 End;
 
 (**
@@ -1055,9 +1184,9 @@ Var
 Begin
   strText := Panel.Text;
   If Pos(strError, LowerCase(strText)) > 0 Then
-    StatusBar.Canvas.Font.Color := clRed
+    StatusBar.Canvas.Font.Color := FOptions.Colour[ocInvalidRegEx]
   Else
-    StatusBar.Canvas.Font.Color := clGreen;
+    StatusBar.Canvas.Font.Color := FOptions.Colour[ocValidRegEx];
   R := Rect;
   StatusBar.Canvas.TextRect(R, strText, [tfLeft, tfBottom]);
 End;
@@ -1093,6 +1222,8 @@ Begin
         ParseTargetSearch;
         FTargetLastEdited := 0;
       End;
+    If Not FSysOptionsMenuInstalled Then
+      AddSystemMenu;
   Finally
     tmTimer.Enabled := True;
   End;
@@ -1294,7 +1425,7 @@ Procedure TfrmOTAIntfSearch.vstInterfacesAfterCellPaint(Sender: TBaseVirtualTree
   Procedure HighlightText(Const MC : TMatchCollection; Const strText : String; Const iColor : TColor);
 
   Const
-    iPadding = 18 + 26;
+    iPadding = 18 + 26 + 2;
 
   Var
     iStart: Integer;
@@ -1307,16 +1438,13 @@ Procedure TfrmOTAIntfSearch.vstInterfacesAfterCellPaint(Sender: TBaseVirtualTree
     For iMatch := 0 To MC.Count - 1 Do
       Begin
         M := MC[iMatch];
+        TargetCanvas.Font.Color := FOptions.Colour[ocHighlightText];
         TargetCanvas.Brush.Color := iColor;
         iLeft := TargetCanvas.TextWidth(Copy(strText, 1, M.Index - 1));
         TargetCanvas.TextOut(iStart + iLeft, CellRect.Top, Copy(strText,
           M.Index, M.Length));
       End;
   End;
-
-Const
-  iLightYellow = $D0FFFF;
-  iLightAqua = $00FF00;
 
 Var
   NodeData: PTreeData;
@@ -1330,9 +1458,9 @@ Begin
       ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
       strText := (Sender As TVirtualStringTree).Text[Node, 0];
       If FFiltering Then
-        HighlightText(FSearchRegEx.Matches(strText), strText, iLightYellow);
+        HighlightText(FSearchRegEx.Matches(strText), strText, FOptions.Colour[ocFilterHighlight]);
       If FTargeting Then
-        HighlightText(FTargetSearchRegEx.Matches(strText), strText, iLightAqua);
+        HighlightText(FTargetSearchRegEx.Matches(strText), strText, FOptions.Colour[ocTargetHighlight]);
     End;
 End;
 
@@ -1360,28 +1488,29 @@ Begin
       NodeData := FInterfacesTree.GetNodeData(FInterfacesTree.FocusedNode);
       ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
       Case NodeData.FLeafType Of
-        ltFile: FCodeView.Lines.LoadFromFile(ToolsAPIFile.FileName);
+        ltFile: CodeView.Lines.LoadFromFile(ToolsAPIFile.FileName);
         ltType:
           Begin
-            FCodeView.Lines.LoadFromFile(ToolsAPIFile.FileName);
-            FCodeView.CaretX := 1;
-            FCodeView.CaretY := ToolsAPIFile.LineNo[NodeData.FInterfaceObjectIndex];
-            FCodeView.TopLine := FCodeView.CaretY - FCodeView.LinesInWindow Div 2;
+            CodeView.Lines.LoadFromFile(ToolsAPIFile.FileName);
+            CodeView.CaretX := 1;
+            CodeView.CaretY := ToolsAPIFile.LineNo[NodeData.FInterfaceObjectIndex];
+            CodeView.TopLine := CodeView.CaretY - CodeView.LinesInWindow Div 2;
           End;
         ltFunction:
           Begin
-            FCodeView.Lines.LoadFromFile(ToolsAPIFile.FileName);
-            FCodeView.CaretX := 1;
-            FCodeView.CaretY := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
+            CodeView.Lines.LoadFromFile(ToolsAPIFile.FileName);
+            CodeView.CaretX := 1;
+            CodeView.CaretY := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
               LineNo[NodeData.FMethodIndex];
-            FCodeView.TopLine := FCodeView.CaretY - FCodeView.LinesInWindow Div 2;
+            CodeView.TopLine := CodeView.CaretY - CodeView.LinesInWindow Div 2;
           End;
       End;
+      CodeView.UseCodeFolding := True;
       GenerateOTACode(NodeData);
     End
   Else
     Begin
-      FCodeView.Lines.Clear;
+      CodeView.Lines.Clear;
       FOTACodeTree.Clear;
     End;
 End;
@@ -1516,7 +1645,7 @@ End;
 
 **)
 Procedure TfrmOTAIntfSearch.vstInterfacesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-Column: TColumnIndex; TextType: TVSTTextType; Var CellText: String);
+  Column: TColumnIndex; TextType: TVSTTextType; Var CellText: String);
 
 Const
   iParentIdentifier = 2;
@@ -1604,8 +1733,8 @@ End;
 
 **)
 Procedure TfrmOTAIntfSearch.vstInterfacesPaintText(Sender: TBaseVirtualTree;
-Const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-TextType: TVSTTextType);
+  Const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  TextType: TVSTTextType);
 
 Var
   NodeData: PTreeData;
@@ -1613,12 +1742,43 @@ Var
 Begin
   NodeData := Sender.GetNodeData(Node);
   TargetCanvas.Font.Style := [];
-  TargetCanvas.Font.Color := clBlack;
+  TargetCanvas.Font.Color := FOptions.Colour[ocWindowText];
   Case NodeData.FLeafType Of
-    ltFile: TargetCanvas.Font.Style := [fsBold];
-    ltType: TargetCanvas.Font.Color := clNavy;
-    ltBorlandIDEServices, ltNotifier, ltQueryInterface: TargetCanvas.Font.Color := clRed;
-    ltLoop: TargetCanvas.Font.Color := clPurple;
+    ltFile : TargetCanvas.Font.Style := [fsBold];
+  End;
+  If Not Sender.Selected[Node] Then
+    Case NodeData.FLeafType Of
+      ltType               : TargetCanvas.Font.Color := FOptions.Colour[ocType];
+      ltBorlandIDEServices : TargetCanvas.Font.Color := FOptions.Colour[ocBorlandIDEServices];
+      ltNotifier           : TargetCanvas.Font.Color := FOptions.Colour[ocNotifier];
+      ltQueryInterface     : TargetCanvas.Font.Color := FOptions.Colour[ocInterface];
+      ltLoop               : TargetCanvas.Font.Color := FOptions.Colour[ocLoop];
+    End Else
+      TargetCanvas.Font.Color := clHighlightText;
+  TargetCanvas.Font.Color := StyleServices.GetSystemColor(TargetCanvas.Font.Color);
+End;
+
+(**
+
+  This is a WMSysCommand window message handler for the applications main form.
+
+  @precon  None.
+  @postcon Contains a handler for the Options menu.
+
+  @param   Message as a TWMSysCommand as a reference
+
+**)
+Procedure TfrmOTAIntfSearch.WMSysCommand(Var Message: TWMSysCommand);
+
+Begin
+  Inherited;
+  Case Message.CmdType Of
+    iMenuID:
+      Begin
+        FOptions.VCLTheme := StyleServices.Name;
+        If TfrmOTAOptions.Execute(FOptions) Then
+          ApplyTheming;
+      End;
   End;
 End;
 

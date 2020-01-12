@@ -2,7 +2,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
   AlignWithMargins = True
   Left = 0
   Top = 0
-  ActiveControl = btnAdd
+  ActiveControl = edtFilter
   Caption = 'OTA Interface Search'
   ClientHeight = 565
   ClientWidth = 784
@@ -28,7 +28,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Top = 3
     Width = 778
     Height = 537
-    ActivePage = tabToolsAPIFiles
+    ActivePage = tabInterfaces
     Align = alClient
     ParentShowHint = False
     ShowHint = False
@@ -36,10 +36,6 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     object tabInterfaces: TTabSheet
       AlignWithMargins = True
       Caption = 'OTA Tools API &Interfaces'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object splViews: TSplitter
         Left = 0
         Top = 301
@@ -48,6 +44,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         Cursor = crVSplit
         Align = alBottom
         AutoSnap = False
+        Beveled = True
         MinSize = 200
         ResizeStyle = rsUpdate
       end
@@ -56,7 +53,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         Top = 307
         Width = 764
         Height = 193
-        ActivePage = tabCreationPaths
+        ActivePage = tabCodeView
         Align = alBottom
         MultiLine = True
         TabOrder = 1
@@ -64,18 +61,44 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
         object tabCodeView: TTabSheet
           AlignWithMargins = True
           Caption = '&Code'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
+          object CodeView: TSynEdit
+            Left = 0
+            Top = 0
+            Width = 750
+            Height = 156
+            Align = alClient
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Courier New'
+            Font.Style = []
+            TabOrder = 0
+            CodeFolding.GutterShapeSize = 11
+            CodeFolding.CollapsedLineColor = clGrayText
+            CodeFolding.FolderBarLinesColor = clGrayText
+            CodeFolding.IndentGuidesColor = clGray
+            CodeFolding.IndentGuides = True
+            CodeFolding.ShowCollapsedLine = True
+            CodeFolding.ShowHintMark = True
+            UseCodeFolding = False
+            Gutter.AutoSize = True
+            Gutter.Font.Charset = DEFAULT_CHARSET
+            Gutter.Font.Color = clWindowText
+            Gutter.Font.Height = -11
+            Gutter.Font.Name = 'Courier New'
+            Gutter.Font.Style = []
+            Gutter.RightOffset = 17
+            Gutter.ShowLineNumbers = True
+            Gutter.ShowModification = True
+            Gutter.UseFontStyle = False
+            Highlighter = synPascal
+            ReadOnly = True
+            FontSmoothing = fsmNone
+          end
         end
         object tabCreationPaths: TTabSheet
           AlignWithMargins = True
           Caption = 'Creation &Paths'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object splPaths: TSplitter
             Left = 0
             Top = 114
@@ -100,12 +123,14 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
               AlignWithMargins = True
               Left = 5
               Top = 5
-              Width = 4
-              Height = 16
+              Width = 734
+              Height = 20
               Align = alClient
               Alignment = taCenter
               Layout = tlCenter
               WordWrap = True
+              ExplicitWidth = 4
+              ExplicitHeight = 16
             end
           end
         end
@@ -405,7 +430,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Left = 40
     Top = 88
     Bitmap = {
-      494C010106000800A00010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010106000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -688,18 +713,7 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     Options.AutoDetectEnabled = True
     Options.AutoDetectLineLimit = 0
     Options.Visible = False
-    AsmAttri.Foreground = clMaroon
-    CommentAttri.Foreground = clPurple
-    DirectiveAttri.Background = clInfoBk
-    DirectiveAttri.Foreground = clGreen
     DirectiveAttri.Style = [fsBold]
-    IdentifierAttri.Foreground = clNavy
-    NumberAttri.Foreground = clGreen
-    FloatAttri.Foreground = clGreen
-    HexAttri.Foreground = clGreen
-    StringAttri.Foreground = clTeal
-    CharAttri.Foreground = clOlive
-    SymbolAttri.Foreground = clMaroon
     Left = 104
     Top = 144
   end
@@ -709,5 +723,21 @@ object frmOTAIntfSearch: TfrmOTAIntfSearch
     OnTimer = tmTimerEvent
     Left = 104
     Top = 88
+  end
+  object alAppActions: TActionList
+    Left = 40
+    Top = 200
+    object actFileExit: TAction
+      Category = 'File'
+      Caption = 'E&xit'
+      ShortCut = 32856
+      OnExecute = actFileExitExecute
+    end
+    object actToolsTestEurekalog: TAction
+      Category = 'Tools'
+      Caption = 'Test &Eurekalog'
+      ShortCut = 57413
+      OnExecute = actToolsTestEurekalogExecute
+    end
   end
 end

@@ -79,7 +79,9 @@ Type
 Implementation
 
 Uses
+  {$IFDEF DEBUG}
   CodeSiteLogging,
+  {$ENDIF DEBUG}
   SysUtils,
   OTAIntfSearch.Types;
 
