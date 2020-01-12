@@ -3,7 +3,7 @@ object frmBrowseFolder: TfrmBrowseFolder
   Top = 0
   BorderIcons = [biSystemMenu]
   Caption = 'Browse for a folder to search'
-  ClientHeight = 100
+  ClientHeight = 96
   ClientWidth = 624
   Color = clBtnFace
   Constraints.MaxHeight = 135
@@ -18,7 +18,7 @@ object frmBrowseFolder: TfrmBrowseFolder
   Position = poMainFormCenter
   DesignSize = (
     624
-    100)
+    96)
   PixelsPerInch = 96
   TextHeight = 16
   object lblSearchPath: TLabel
@@ -68,7 +68,7 @@ object frmBrowseFolder: TfrmBrowseFolder
     Left = 304
     Top = 16
     Bitmap = {
-      494C0101010008001C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010101000800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

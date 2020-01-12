@@ -7,7 +7,31 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    17 Dec 2016
+  @Date    12 Jan 2020
+
+  @license
+
+    OTA Interface Search is a RAD Studio application for searching the RAD Studio
+    Open Tools API source (not included) for properties and methods to expose the
+    required interfaces / methods / properties and provide (if possible) the path
+    through the OTA in order to use the interface / method / property.
+    
+    Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/OTA-Interface-Search)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+  @nocheck HardCodedString
 
 **)
 Program OTAIntfSearch;
@@ -18,7 +42,24 @@ Program OTAIntfSearch;
 {$WARN UNIT_PLATFORM OFF}
 
 uses
-  Forms,
+  {$IFDEF EurekaLog}
+  EMemLeaks,
+  EResLeaks,
+  ESendMailMAPI,
+  ESendMailSMAPI,
+  EDialogWinAPIMSClassic,
+  EDialogWinAPIEurekaLogDetailed,
+  EDialogWinAPIStepsToReproduce,
+  EDebugExports,
+  EDebugJCL,
+  EFixSafeCallException,
+  EMapWin32,
+  EAppVCL,
+  ExceptionLog7,
+  {$ENDIF EurekaLog}
+  Vcl.Forms,
+  Vcl.Themes,
+  Vcl.Styles,
   OTAIntfSearch.Interfaces in 'Source\OTAIntfSearch.Interfaces.pas',
   OTAIntfSearch.MemIniFile in 'Source\OTAIntfSearch.MemIniFile.pas',
   OTAIntfSearch.ToolsAPIFile in 'Source\OTAIntfSearch.ToolsAPIFile.pas',
@@ -37,7 +78,10 @@ uses
   OTAIntfSearch.Constants in 'Source\OTAIntfSearch.Constants.pas',
   OTAIntfSearch.Functions in 'Source\OTAIntfSearch.Functions.pas',
   OTAIntfSearch.InterfaceIndex in 'Source\OTAIntfSearch.InterfaceIndex.pas',
-  OTAIntfSearch.OTAServicePaths in 'Source\OTAIntfSearch.OTAServicePaths.pas';
+  OTAIntfSearch.OTAServicePaths in 'Source\OTAIntfSearch.OTAServicePaths.pas',
+  OTAIntfSearch.OptionsForm in 'Source\OTAIntfSearch.OptionsForm.pas' {frmOTAOptions},
+  OTAIntfSearch.Options in 'Source\OTAIntfSearch.Options.pas',
+  OTAIntfSearch.AboutDlg in 'Source\OTAIntfSearch.AboutDlg.pas' {frmOISAbout};
 
 {$R *.RES}
 
@@ -48,3 +92,5 @@ Begin
   Application.CreateForm(TfrmOTAIntfSearch, frmOTAIntfSearch);
   Application.Run;
 End.
+
+

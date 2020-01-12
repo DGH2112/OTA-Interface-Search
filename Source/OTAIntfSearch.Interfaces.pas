@@ -4,7 +4,29 @@
 
   @Author  David Hoyle
   @Version 1.0
-  @Date    21 Oct 2018
+  @Date    12 Jan 2020
+
+  @license
+
+    OTA Interface Search is a RAD Studio application for searching the RAD Studio
+    Open Tools API source (not included) for properties and methods to expose the
+    required interfaces / methods / properties and provide (if possible) the path
+    through the OTA in order to use the interface / method / property.
+    
+    Copyright (C) 2019  David Hoyle (https://github.com/DGH2112/OTA-Interface-Search)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 **)
 Unit OTAIntfSearch.Interfaces;
@@ -12,7 +34,8 @@ Unit OTAIntfSearch.Interfaces;
 Interface
 
 Uses
-  Classes,
+  System.Classes,
+  VCL.Graphics,
   OTAIntfSearch.Types;
 
 Type
@@ -217,6 +240,94 @@ Type
     Procedure AddServicePath(Const TreeNode : Pointer);
     Procedure SortServicePaths;
     Function  ShortestServicePath : Pointer;
+  End;
+
+  (** An enumerate for the various colours that cannot be themed. **)
+  TOISOTAColour = (
+    ocWindowText,
+    ocType,
+    ocBorlandIDEServices,
+    ocNotifier,
+    ocInterface,
+    ocLoop,
+    ocFilterHighlight,
+    ocTargetHighlight,
+    ocHighlightText,
+    ocAssembler,
+    ocCharacter,
+    ocComment,
+    ocDirective,
+    ocNumber,
+    ocIdentifier,
+    ocReservedWord,
+    ocSymbol,
+    ocString,
+    ocCurrentLineHighlight,
+    ocValidRegEx,
+    ocInvalidRegEx
+  );
+  
+  (** An interface for the applications configurable options. **)
+  IOISOTAOptions = Interface
+  ['{77C53E11-3C25-47FB-9643-55C99E953D57}']
+    // Getters and Setters
+    Function  GetVCLTheme : String;
+    Procedure SetVCLTheme(Const strVCLTheme : String);
+    Function  GetColour(Const eColour : TOISOTAColour) : TColor;
+    Procedure SetColour(Const eColour : TOISOTAColour; Const iValue : TColor);
+    Function  GetTreeFontName : String;
+    Procedure SetTreeFontName(Const strValue : String);
+    Function  GetTreeFontSize : Integer;
+    Procedure SetTreeFontSize(Const iValue : Integer);
+    Function  GetEditorFontName : String;
+    Procedure SetEditorFontName(Const strValue : String);
+    Function  GetEditorFontSize : Integer;
+    Procedure SetEditorFontSize(Const iValue : Integer);
+    // General Methods
+    // Properties
+    (**
+      This property gets and sets the applications VCL Theme.
+      @precon  None.
+      @postcon Gets and sets the applications VCL Theme.
+      @return  a String
+    **)
+    Property VCLTheme : String Read GetVCLTheme Write SetVCLTheme;
+    (**
+      This property gets and sets the enumerated option colour.
+      @precon  None.
+      @postcon Gets and sets the enumerated option colour.
+      @param   eColour as a TOISOTAColour as a constant
+      @return  a TColor
+    **)
+    Property Colour[Const eColour : TOISOTAColour] : TColor Read GetColour Write SetColour;
+    (**
+      This property determines the font name for the tree view.
+      @precon  None.
+      @postcon Gets and sets the tree font name.
+      @return  a String
+    **)
+    Property TreeFontName : String Read GetTreeFontName Write SetTreeFontName;
+    (**
+      This property determines the font size for the tree view.
+      @precon  None.
+      @postcon Gets and sets the tree font size.
+      @return  a Integer
+    **)
+    Property TreeFontSize : Integer Read GetTreeFontSize Write SetTreeFontSize;
+    (**
+      This property determines the font name for the code editor view.
+      @precon  None.
+      @postcon Gets and sets the code editor font name.
+      @return  a String
+    **)
+    Property EditorFontName : String Read GetEditorFontName Write SetEditorFontName;
+    (**
+      This property determines the font size for the code edtior view.
+      @precon  None.
+      @postcon Gets and sets the code editor font size.
+      @return  an Integer
+    **)
+    Property EditorFontSize : Integer Read GetEditorFontSize Write SetEditorFontSize;
   End;
 
 Implementation
