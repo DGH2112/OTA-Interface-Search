@@ -716,7 +716,7 @@ Begin
     Var
       NodeData: PTreeData;
       ParentNode: PVirtualNode;
-      strText: String;
+      strText, strComment: String;
       ToolsAPIFile: IOISToolsAPIFile;
     Begin
       NodeData := Sender.GetNodeData(Node);
@@ -724,12 +724,17 @@ Begin
         Begin
           ToolsAPIFile := FToolsAPIFiles.ToolsAPIFile[NodeData.FFileIndex];
           If NodeData.FLeafType = ltType Then
-            strText := ToolsAPIFile.InterfaceObject[NodeData.FInterfaceObjectIndex]
-          Else
-            strText := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
-              MethodProperty[NodeData.FMethodIndex];
-          Sender.IsVisible[Node] := Not FFiltering Or
-            FSearchRegEx.IsMatch(strText);
+            Begin
+              strText := ToolsAPIFile.InterfaceObject[NodeData.FInterfaceObjectIndex];
+              strComment := ToolsAPIFile.Comment[NodeData.FInterfaceObjectIndex];
+            End Else
+            Begin
+              strText := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex].
+                MethodProperty[NodeData.FMethodIndex];
+              strComment := ToolsAPIFile.InterfaceObjectMethods[NodeData.FInterfaceObjectIndex]
+                .Comment[NodeData.FMethodIndex];
+            End;
+          Sender.IsVisible[Node] := Not FFiltering Or FSearchRegEx.IsMatch(strText) Or FSearchRegEx.IsMatch(strComment);
           If Sender.IsVisible[Node] Then
             Begin
               Inc(iVisible);
